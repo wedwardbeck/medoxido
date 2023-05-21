@@ -1,3 +1,7 @@
+//! Medication CRUD
+//!
+//! Using SurrealDB to create a CRUD API for Medication Tracking
+
 use crate::error::Error;
 use axum::extract::Path;
 use axum::extract::State;
@@ -12,10 +16,13 @@ const MEDICATION: &str = "medication";
 
 type Db = State<Surreal<Client>>;
 
+/// Struct Medication for CRUD operations using the name field.
 #[derive(Serialize, Deserialize)]
 pub struct Medication {
     name: String,
 }
+/// Struct Medication for CRUD operations using the id.
+/// Used for the read_body function, instead of a path parameter.
 #[derive(Serialize, Deserialize, Default)]
 pub struct MedicationId {
     id: String,
@@ -42,6 +49,9 @@ pub async fn read(db: Db, id: Path<String>) -> Result<Json<Option<Medication>>, 
     Ok(Json(medication))
 }
 
+/// This function is meant to take a complex id to return one record.
+/// The id is composed of the name and timestamp of the record creation.
+/// Example: ['iburpfen', '2021-01-01T00:00:00.000Z']
 pub async fn read_body(
     db: Db,
     Json(medication_id): Json<MedicationId>,
