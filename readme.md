@@ -1,1 +1,25 @@
 Medication Tracker built on Rust
+
+- src
+  - main.rs                # Entry point of the application
+  - api
+    - v1
+      - v1_routes.rs          # Version 1 API routes
+      - v1_handlers.rs        # Version 1 API route handlers
+    - v2
+      - v2_routes.rs          # Version 2 API routes
+      - v2_handlers.rs        # Version 2 API route handlers
+  - handlers
+    - medication_handler.rs        # Medication route handlers
+    - dose_handler.rs             # Doses route handlers
+    - quantity_handler.rs          # Quantity on hand route handlers
+  - models
+    - medication_model.rs        # Medication data model
+    - dose_model.rs             # Doses data model
+    - quantity_model.rs          # Quantity on hand data model
+  - db
+    - postgres.rs          # PostgreSQL database functions and queries
+  - errors.rs              # Custom error types
+  - config.rs              # Configuration settings
+  - utils.rs               # Utility functions or macros
+  - tests.rs               # Integration tests
