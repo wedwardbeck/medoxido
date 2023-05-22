@@ -2,3 +2,7 @@
 ///
 /// [`clap`]: https://github.com/clap-rs/clap/
 pub mod config;
+
+/// API Service
+///
+pub mod api;
