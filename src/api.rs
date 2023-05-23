@@ -1,26 +1,31 @@
-
 use axum::Router;
 use anyhow::Context;
 use surrealdb::Surreal;
 use surrealdb::engine::remote::ws::{ Client };
 use std::{
     net::{Ipv4Addr, SocketAddr},
-    // sync::Arc,
+    sync::Arc,
 };
 use tower_http::trace::TraceLayer;
 
+use crate::config::Config;
 pub mod handlers;
 pub mod error;
 pub use error::{Error};
+
 // pub type Result<T, E = Error> = std::result::Result<T, E>;
 
+// TODO: Remove this when we implement auth and use config.
+#[allow(unused)]
 #[derive(Clone)]
-pub struct ApiContext {
+pub(crate) struct ApiContext {
+    config: Arc<Config>,
     db: Surreal<Client>,
 }
 
-pub async fn serve(db: Surreal<Client>) -> anyhow::Result<()> {
+pub async fn serve(config: Config, db: Surreal<Client>) -> anyhow::Result<()> {
     let api_context = ApiContext {
+        config: Arc::new(config),
         db,
     };
 

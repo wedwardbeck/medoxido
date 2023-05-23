@@ -1,5 +1,3 @@
-#[allow(dead_code)]
-
 use axum::http::header::WWW_AUTHENTICATE;
 use axum::http::StatusCode;
 use axum::response::IntoResponse;
@@ -7,9 +5,9 @@ use axum::response::Response;
 use axum::Json;
 use std::borrow::Cow;
 use std::collections::HashMap;
-use thiserror::Error;
 
-#[derive(Error, Debug)]
+
+#[derive(thiserror::Error, Debug)]
 pub enum Error {
     /// Return `401 Unauthorized`
     #[error("authentication required")]
@@ -22,22 +20,35 @@ pub enum Error {
     /// Return `404 Not Found`
     #[error("request path not found")]
     NotFound,
+
+    /// Return `422 Unprocessable Entity`
+    ///
+    /// This also serializes the `errors` map to JSON to satisfy the requirement for
+    /// `422 Unprocessable Entity` errors in the Realworld spec:
+    /// https://realworld-docs.netlify.app/docs/specs/backend-specs/error-handling
+    ///
+    /// For a good API, the other status codes should also ideally map to some sort of JSON body
+    /// that the frontend can deal with, but I do admit sometimes I've just gotten lazy and
+    /// returned a plain error message if there were few enough error modes for a route
+    /// that the frontend could infer the error from the status code alone.
     #[error("error in the request body")]
     UnprocessableEntity {
         errors: HashMap<Cow<'static, str>, Vec<Cow<'static, str>>>,
     },
+
     #[error("database error")]
     Db,
+
+    /// Return `500 Internal Server Error` on a `anyhow::Error`.
+    ///
+    /// The actual error message is not returned to the client
+    /// for security reasons.
     #[error("an internal server error occurred")]
     Anyhow(#[from] anyhow::Error),
 }
 
 impl Error {
-    /// Convenient constructor for `Error::UnprocessableEntity`.
-    ///
-    /// Multiple for the same key are collected into a list for that key.
-    ///
-    /// Try "Go to Usage" in an IDE for examples.
+
     pub fn unprocessable_entity<K, V>(errors: impl IntoIterator<Item = (K, V)>) -> Self
     where
         K: Into<Cow<'static, str>>,
@@ -66,10 +77,12 @@ impl Error {
     }
 }
 
+/// Axum allows you to return `Result` from handler functions, but the error type
+/// also must be some sort of response type.
+///
+/// By default, the generated `Display` impl is used to return a plaintext error message
+/// to the client.
 impl IntoResponse for Error {
-    // fn into_response(self) -> Response {
-    //     (StatusCode::INTERNAL_SERVER_ERROR, Json(self.to_string())).into_response()
-    // }
     fn into_response(self) -> Response {
         match self {
             Self::UnprocessableEntity { errors } => {
@@ -98,11 +111,6 @@ impl IntoResponse for Error {
                     .into_response();
             }
 
-            // Self::Sqlx(ref e) => {
-            //     // TODO: we probably want to use `tracing` instead
-            //     // so that this gets linked to the HTTP request by `TraceLayer`.
-            //     log::error!("SQLx error: {:?}", e);
-            // }
 
             Self::Anyhow(ref e) => {
                 // TODO: we probably want to use `tracing` instead
@@ -116,7 +124,9 @@ impl IntoResponse for Error {
 
         (self.status_code(), self.to_string()).into_response()
     }
+
 }
+
 
 impl From<surrealdb::Error> for Error {
     fn from(error: surrealdb::Error) -> Self {

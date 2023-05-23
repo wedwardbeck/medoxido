@@ -1,51 +1,38 @@
-mod api;
-// mod medication;
 
-// use axum::routing::{delete, get, post, put};
-// use axum::{Router, Server};
-// use std::net::SocketAddr;
+use clap::Parser;
 use surrealdb::engine::remote::ws::{ Ws };
 use surrealdb::opt::auth::Root;
 use surrealdb::Surreal;
-// use api;
 
-// pub(crate) struct ApiContext {
-//     db: Surreal<Client>,
-// }
+// mod api;
+use medoxido::config::{Config};
+use medoxido::api;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let db = Surreal::new::<Ws>("localhost:8000").await?;
+    dotenvy::dotenv().ok();
+
+    // Initialize the logger.
+    env_logger::init();
+
+    // Parse our configuration from the environment.
+    // This will exit with a help message if something is wrong.
+    let config = Config::parse();
+
+    // let db = Surreal::new::<Ws>("localhost:8000").await?;
+    let db_address = format!("{}:{}", &config.db_host, &config.db_port);
+
+    let db = Surreal::new::<Ws>(db_address).await?;
 
     db.signin(Root {
-        username: "root",
-        password: "root",
+        username: &config.db_user,
+        password: &config.db_password,
     })
     .await?;
 
-    db.use_ns("temps").use_db("temps").await?;
+    db.use_ns(&config.db_namespace).use_db(&config.db_name).await?;
 
-    // let api_context = ApiContext {
-    //     db,
-    // };
-
-    api::serve(db).await?;
-
-    // let app = Router::new()
-        // .merge(api::api_router())
-        // .merge(api::handlers::medications::router())
-        // .route("/medication/:id", post(medication::create))
-        // .route("/medication", post(medication::create))
-        // .route("/medication/:id", get(medication::read))
-        // .route("/medication", get(medication::read_body))
-        // .route("/medication/:id", put(medication::update))
-        // .route("/medication/:id", delete(medication::delete))
-        // .route("/medications", get(medication::list))
-        // .with_state(db);
-
-    // let addr = SocketAddr::from(([127, 0, 0, 1], 8080));
-
-    // Server::bind(&addr).serve(app.into_make_service()).await?;
+    api::serve(config, db).await?;
 
     Ok(())
 }
