@@ -3,8 +3,6 @@ use clap::Parser;
 use surrealdb::engine::remote::ws::{ Ws };
 use surrealdb::opt::auth::Root;
 use surrealdb::Surreal;
-
-// mod api;
 use medoxido::config::{Config};
 use medoxido::api;
 
