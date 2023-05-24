@@ -45,17 +45,14 @@ pub(crate) async fn read_med(ctx: State<ApiContext>, id: Path<String>) -> Result
     Ok(Json(medication))
 }
 
-/// This function is meant to take a complex id to return one record.
-/// The id is composed of the name and timestamp of the record creation.
-/// Example: ['ibuprofen', '2021-01-01T00:00:00.000Z']
+/// Function to read id from body.  Was Complex ID, changed to simplify using
+/// SurrealQL select function.
 pub(crate) async fn read_body(
     ctx: State<ApiContext>,
     Json(medication_id): Json<MedicationId>,
 ) -> Result<Json<Option<Medication>>, Error> {
     let id = medication_id.get_string();
-    let query = format!("SELECT * FROM {};", id);
-    let mut sql = ctx.db.query(query).await?;
-    let medication: Option<Medication> = sql.take(0)?;
+    let medication = ctx.db.select((MEDICATION, id)).await?;
     Ok(Json(medication))
 }
 
