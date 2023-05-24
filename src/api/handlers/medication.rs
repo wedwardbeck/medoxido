@@ -7,6 +7,7 @@ use axum::extract::State;
 use axum::Json;
 use serde::Deserialize;
 use serde::Serialize;
+use surrealdb::sql::Thing;
 
 use crate::api::error::Error;
 use crate::api::ApiContext;
@@ -16,6 +17,12 @@ const MEDICATION: &str = "medication";
 /// Struct Medication for CRUD operations using the name field.
 #[derive(Serialize, Deserialize)]
 pub struct Medication {
+    id: Thing,
+    name: String,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct CreateMedication {
     name: String,
 }
 
@@ -34,7 +41,7 @@ impl MedicationId {
 
 pub(crate) async fn create_med(
     ctx: State<ApiContext>,
-    Json(medication): Json<Medication>,
+    Json(medication): Json<CreateMedication>,
 ) -> Result<Json<Option<Medication>>, Error> {
     let medication = ctx.db.create(MEDICATION).content(medication).await?;
     Ok(Json(medication))

@@ -2,7 +2,7 @@
 use axum::Router;
 use axum::routing::{delete, get, post, put};
 use tower_http::trace::TraceLayer;
-mod medication;
+pub(crate) mod medication;
 
 use crate::api::ApiContext;
 
