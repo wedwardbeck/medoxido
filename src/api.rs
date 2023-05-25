@@ -41,6 +41,7 @@ pub async fn serve(config: Config, db: Surreal<Client>) -> anyhow::Result<()> {
 fn api_router(api_context: ApiContext) -> Router {
     // This is the order that the modules were authored in.
     Router::new()
+        .merge(handlers::dose_router(api_context.clone()))
         .merge(handlers::medication_router(api_context.clone()))
         // .merge(profiles::router())
         // .merge(articles::router())
