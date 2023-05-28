@@ -43,6 +43,7 @@ fn api_router(api_context: ApiContext) -> Router {
     Router::new()
         .merge(handlers::dose_router(api_context.clone()))
         .merge(handlers::medication_router(api_context.clone()))
+        .merge(handlers::store_router(api_context.clone()))
         // .merge(profiles::router())
         // .merge(articles::router())
         // Enables logging. Use `RUST_LOG=tower_http=debug`

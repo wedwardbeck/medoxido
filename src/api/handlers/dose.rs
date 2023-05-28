@@ -14,25 +14,31 @@ const DOSE: &str = "dose";
 #[derive(Serialize, Deserialize)]
 pub struct Dose {
     id: Thing,
-    medication: String,
+    medication: Thing,
     quantity: f32,
     unit: String,
     created: Datetime,
     updated: Datetime,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize)]
 pub struct CreateDose {
-    medication: String,
     quantity: f32,
     unit: String,
+    medication: String,
 }
 
 pub(crate) async fn create_dose(
     ctx: State<ApiContext>,
     Json(dose): Json<CreateDose>,
+    // form: axum::extract::Form<CreateDose>,
 ) -> Result<Json<Option<Dose>>, Error> {
-    let dose = ctx.db.create(DOSE).content(dose).await?;
+    // let dose: CreateDose = form.0;
+    let query =
+        format!("CREATE dose SET quantity = {}, unit = '{}', medication = '{}';", &dose.quantity, &dose.unit, &dose.medication);
+    println!("query: {}", query);
+    let mut sql = ctx.db.query(query).await?;
+    let dose: Option<Dose> = sql.take(0)?;
     Ok(Json(dose))
 }
 
@@ -59,3 +65,4 @@ pub(crate) async fn list_doses(ctx: State<ApiContext>,) -> Result<Json<Vec<Dose>
     let doses = ctx.db.select(DOSE).await?;
     Ok(Json(doses))
 }
+
