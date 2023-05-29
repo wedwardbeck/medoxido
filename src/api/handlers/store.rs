@@ -42,7 +42,7 @@ pub(crate) async fn create_store(
         format!("CREATE store SET medication = '{}', production_date = {}, expiration_date = {},
         lot_number = '{}', quantity = {}, unit = '{}';", &store.medication, &store.production_date,
         &store.expiration_date, &store.lot_number, &store.quantity, &store.unit);
-    println!("query: {}", query);
+    // println!("query: {}", query);
     let mut sql = ctx.db.query(query).await?;
     let store: Option<Store> = sql.take(0)?;
     Ok(Json(store))

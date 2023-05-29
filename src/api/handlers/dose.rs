@@ -15,6 +15,7 @@ const DOSE: &str = "dose";
 pub struct Dose {
     id: Thing,
     medication: Thing,
+    store: Thing,
     quantity: f32,
     unit: String,
     created: Datetime,
@@ -26,6 +27,7 @@ pub struct CreateDose {
     quantity: f32,
     unit: String,
     medication: String,
+    store: String,
 }
 
 pub(crate) async fn create_dose(
@@ -35,7 +37,7 @@ pub(crate) async fn create_dose(
 ) -> Result<Json<Option<Dose>>, Error> {
     // let dose: CreateDose = form.0;
     let query =
-        format!("CREATE dose SET quantity = {}, unit = '{}', medication = '{}';", &dose.quantity, &dose.unit, &dose.medication);
+        format!("CREATE dose SET quantity = {}, unit = '{}', medication = '{}', store = '{}';", &dose.quantity, &dose.unit, &dose.medication, &dose.store);
     println!("query: {}", query);
     let mut sql = ctx.db.query(query).await?;
     let dose: Option<Dose> = sql.take(0)?;
