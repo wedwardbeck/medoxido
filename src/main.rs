@@ -1,3 +1,4 @@
+<<<<<<< Updated upstream
 mod error;
 mod medication;
 
@@ -12,6 +13,17 @@ use surrealdb::opt::auth::Root;
 use surrealdb::Surreal;
 
 
+=======
+#![allow(unused)]
+use clap::Parser;
+use surrealdb::engine::remote::ws::{ Ws };
+use surrealdb::opt::auth::Root;
+use surrealdb::Surreal;
+use surrealdb::engine::local::Db;
+use surrealdb::engine::local::File;
+use medoxido::config::{Config};
+use medoxido::api;
+>>>>>>> Stashed changes
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -22,6 +34,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 	// let db = Surreal::new::<Ws>("localhost:8000").await?;
 
+<<<<<<< Updated upstream
 	db.signin(Root {
 		username: "root",
 		password: "root",
@@ -29,6 +42,16 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 	.await?;
 
 	db.use_ns("temps").use_db("temps").await?;
+=======
+    // let db = Surreal::new::<Ws>(db_address).await?;
+    let db = Surreal::new::<File>("../temps.db").await?;
+
+    // db.signin(Root {
+    //     username: &config.db_user,
+    //     password: &config.db_password,
+    // })
+    // .await?;
+>>>>>>> Stashed changes
 
 	let app = Router::new()
 		.route("/medication/:id", post(medication::create))
