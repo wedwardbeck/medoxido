@@ -39,13 +39,11 @@ pub async fn serve(config: Config, db: Surreal<Client>) -> anyhow::Result<()> {
 }
 
 fn api_router(api_context: ApiContext) -> Router {
-    // This is the order that the modules were authored in.
     Router::new()
         .merge(handlers::dose_router(api_context.clone()))
         .merge(handlers::medication_router(api_context.clone()))
+        .merge(handlers::note_router(api_context.clone()))
         .merge(handlers::store_router(api_context.clone()))
-        // .merge(profiles::router())
-        // .merge(articles::router())
         // Enables logging. Use `RUST_LOG=tower_http=debug`
         .layer(TraceLayer::new_for_http())
         .with_state(api_context)

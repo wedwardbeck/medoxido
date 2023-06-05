@@ -4,6 +4,7 @@ use axum::routing::{delete, get, post, put};
 use tower_http::trace::TraceLayer;
 pub(crate) mod dose;
 pub(crate) mod medication;
+pub(crate) mod note;
 pub(crate) mod store;
 
 use crate::api::ApiContext;
@@ -28,6 +29,17 @@ pub(crate) fn medication_router(api_context: ApiContext) -> Router<ApiContext> {
     .route("/medication/:id", put(medication::update_med))
     .route("/medication/:id", delete(medication::delete_med))
     .route("/medications", get(medication::list_meds))
+    .layer(TraceLayer::new_for_http())
+    .with_state(api_context)
+}
+
+pub(crate) fn note_router(api_context: ApiContext) -> Router<ApiContext> {
+    Router::new()
+    .route("/note", post(note::create_note))
+    .route("/note/:id", get(note::read_note))
+    .route("/note/:id", put(note::update_note))
+    .route("/note/:id", delete(note::delete_note))
+    .route("/note", get(note::list_notes))
     .layer(TraceLayer::new_for_http())
     .with_state(api_context)
 }
