@@ -14,9 +14,9 @@ const DOSE: &str = "dose";
 #[derive(Serialize, Deserialize)]
 pub struct Dose {
     id: Thing,
-    medication: Thing,
+    // medication: Thing,
     store: Thing,
-    quantity: f32,
+    quantity: String,
     unit: String,
     created: Datetime,
     updated: Datetime,
@@ -26,8 +26,17 @@ pub struct Dose {
 pub struct CreateDose {
     quantity: f32,
     unit: String,
-    medication: String,
+    // medication: String,
     store: String,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct UpdateDose {
+    id: String,
+    // medication: String,
+    store: String,
+    quantity: String,
+    unit: String,
 }
 
 pub(crate) async fn create_dose(
@@ -37,12 +46,28 @@ pub(crate) async fn create_dose(
 ) -> Result<Json<Option<Dose>>, Error> {
     // let dose: CreateDose = form.0;
     let query =
-        format!("CREATE dose SET quantity = {}, unit = '{}', medication = '{}', store = '{}';", &dose.quantity, &dose.unit, &dose.medication, &dose.store);
+        format!("CREATE dose SET quantity = {}, unit = '{}', store = '{}';", &dose.quantity, &dose.unit, &dose.store);
     println!("query: {}", query);
     let mut sql = ctx.db.query(query).await?;
     let dose: Option<Dose> = sql.take(0)?;
     Ok(Json(dose))
 }
+
+
+pub(crate) async fn create_dose_form(
+    ctx: State<ApiContext>,
+    // Json(dose): Json<CreateDose>,
+    form: axum::extract::Form<CreateDose>,
+) -> Result<Json<Option<Dose>>, Error> {
+    let dose: CreateDose = form.0;
+    let query =
+        format!("CREATE dose SET quantity = {}, unit = '{}', store = '{}';", &dose.quantity, &dose.unit, &dose.store);
+    println!("query: {}", query);
+    let mut sql = ctx.db.query(query).await?;
+    let dose: Option<Dose> = sql.take(0)?;
+    Ok(Json(dose))
+}
+
 
 pub(crate) async fn read_dose(ctx: State<ApiContext>, id: Path<String>) -> Result<Json<Option<Dose>>, Error> {
     let dose = ctx.db.select((DOSE, &*id)).await?;
@@ -51,10 +76,12 @@ pub(crate) async fn read_dose(ctx: State<ApiContext>, id: Path<String>) -> Resul
 
 pub(crate) async fn update_dose(
     ctx: State<ApiContext>,
-    id: Path<String>,
-    Json(dose): Json<Dose>,
+    Json(dose): Json<UpdateDose>,
 ) -> Result<Json<Option<Dose>>, Error> {
-    let dose = ctx.db.update((DOSE, &*id)).content(dose).await?;
+    let query =
+        format!("UPDATE {} SET quantity = {}, unit = '{}', store = '{}';", &dose.id, &dose.quantity, &dose.unit, &dose.store);
+    let mut sql = ctx.db.query(query).await?;
+    let dose: Option<Dose> = sql.take(0)?;
     Ok(Json(dose))
 }
 
