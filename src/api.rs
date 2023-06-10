@@ -42,7 +42,7 @@ fn api_router(api_context: ApiContext) -> Router {
     Router::new()
         .merge(handlers::dose_router(api_context.clone()))
         .merge(handlers::medication_router(api_context.clone()))
-        .merge(handlers::medication_reminder_router(api_context.clone()))
+        .merge(handlers::reminder_router(api_context.clone()))
         .merge(handlers::note_router(api_context.clone()))
         .merge(handlers::store_router(api_context.clone()))
         .merge(handlers::uom_router(api_context.clone()))

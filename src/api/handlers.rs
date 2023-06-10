@@ -4,7 +4,7 @@ use axum::routing::{delete, get, post, put};
 use tower_http::trace::TraceLayer;
 pub(crate) mod dose;
 pub(crate) mod medication;
-pub(crate) mod medication_reminder;
+pub(crate) mod reminder;
 pub(crate) mod note;
 pub(crate) mod store;
 pub(crate) mod uom;
@@ -36,17 +36,6 @@ pub(crate) fn medication_router(api_context: ApiContext) -> Router<ApiContext> {
     .with_state(api_context)
 }
 
-pub(crate) fn medication_reminder_router(api_context: ApiContext) -> Router<ApiContext> {
-    Router::new()
-    .route("/med_reminder", post(medication_reminder::create_medication_reminder))
-    .route("/med_reminder/:id", get(medication_reminder::read_medication_reminder))
-    .route("/med_reminder/:id", put(medication_reminder::update_medication_reminder))
-    .route("/med_reminder/:id", delete(medication_reminder::delete_medication_reminder))
-    .route("/med_reminders", get(medication_reminder::list_medication_reminders))
-    .layer(TraceLayer::new_for_http())
-    .with_state(api_context)
-}
-
 pub(crate) fn note_router(api_context: ApiContext) -> Router<ApiContext> {
     Router::new()
     .route("/note", post(note::create_note))
@@ -54,6 +43,18 @@ pub(crate) fn note_router(api_context: ApiContext) -> Router<ApiContext> {
     .route("/note/:id", put(note::update_note))
     .route("/note/:id", delete(note::delete_note))
     .route("/note", get(note::list_notes))
+    .layer(TraceLayer::new_for_http())
+    .with_state(api_context)
+}
+
+pub(crate) fn reminder_router(api_context: ApiContext) -> Router<ApiContext> {
+    Router::new()
+    .route("/reminder", post(reminder::create_reminder))
+    .route("/reminder_form", post(reminder::create_reminder_form))
+    .route("/reminder/:id", get(reminder::read_reminder))
+    .route("/reminder/:id", put(reminder::update_reminder))
+    .route("/reminder/:id", delete(reminder::delete_reminder))
+    .route("/reminders", get(reminder::list_reminders))
     .layer(TraceLayer::new_for_http())
     .with_state(api_context)
 }
