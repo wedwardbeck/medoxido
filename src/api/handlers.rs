@@ -50,7 +50,7 @@ pub(crate) fn note_router(api_context: ApiContext) -> Router<ApiContext> {
 pub(crate) fn reminder_router(api_context: ApiContext) -> Router<ApiContext> {
     Router::new()
     .route("/reminder", post(reminder::create_reminder))
-    .route("/reminder_form", post(reminder::create_reminder_form))
+    // .route("/reminder_form", post(reminder::create_reminder_form))
     .route("/reminder/:id", get(reminder::read_reminder))
     .route("/reminder/:id", put(reminder::update_reminder))
     .route("/reminder/:id", delete(reminder::delete_reminder))
