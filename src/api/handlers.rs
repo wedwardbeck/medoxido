@@ -1,6 +1,6 @@
 
 use axum::Router;
-use axum::routing::{delete, get, post, put};
+use axum::routing::{delete, get, patch, post, put};
 use tower_http::trace::TraceLayer;
 pub(crate) mod dose;
 pub(crate) mod medication;
@@ -46,15 +46,18 @@ pub(crate) fn note_router(api_context: ApiContext) -> Router<ApiContext> {
     .layer(TraceLayer::new_for_http())
     .with_state(api_context)
 }
-
+//TODO: Remove roast and toast eventually (used for testing)
 pub(crate) fn reminder_router(api_context: ApiContext) -> Router<ApiContext> {
     Router::new()
     .route("/reminder", post(reminder::create_reminder))
-    // .route("/reminder_form", post(reminder::create_reminder_form))
+    .route("/toast", post(reminder::create_toast))
+    .route("/roast", post(reminder::create_roast))
     .route("/reminder/:id", get(reminder::read_reminder))
     .route("/reminder/:id", put(reminder::update_reminder))
+    .route("/reminder/:id", patch(reminder::deactivate_reminder))
     .route("/reminder/:id", delete(reminder::delete_reminder))
     .route("/reminders", get(reminder::list_reminders))
+    .route("/activereminders", get(reminder::list_active_reminders))
     .layer(TraceLayer::new_for_http())
     .with_state(api_context)
 }

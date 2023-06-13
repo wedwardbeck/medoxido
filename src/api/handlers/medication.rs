@@ -17,7 +17,7 @@ const MEDICATION: &str = "medication";
 /// Struct Medication for CRUD operations using the name field.
 #[derive(Serialize, Deserialize)]
 pub struct Medication {
-    id: Thing,
+    id: Option<Thing>,
     name: String,
 }
 
@@ -47,6 +47,17 @@ pub(crate) async fn create_med(
     Ok(Json(medication))
 }
 
+/// Reads a medication from the database with the given ID and returns it as JSON
+///
+/// # Arguments
+///
+/// * `ctx` - The API context containing the database connection
+/// * `id` - The ID of the medication to read
+///
+/// # Returns
+///
+/// A `Json` object containing the medication with the given ID, or `None` if it does not exist in the database.
+/// If an error occurs while accessing the database, an `Error` is returned.
 pub(crate) async fn read_med(ctx: State<ApiContext>, id: Path<String>) -> Result<Json<Option<Medication>>, Error> {
     let medication = ctx.db.select((MEDICATION, &*id)).await?;
     Ok(Json(medication))
