@@ -23,6 +23,19 @@ pub(crate) struct ApiContext {
     db: Surreal<Client>,
 }
 
+/// Serves the API using the given configuration and database client
+///
+/// # Arguments
+///
+/// * `config` - A `Config` struct containing the configuration for the API
+/// * `db` - A `Surreal<Client>` struct representing the database client
+///
+/// # Returns
+///
+/// Returns `Ok(())` if the server was successfully started, otherwise returns an `anyhow::Error`
+///
+// TODO: Alter the Surreal<Client> to Surreal<DB> for local file storage.
+// TODO: adjust comments for change in ws to db local.
 pub async fn serve(config: Config, db: Surreal<Client>) -> anyhow::Result<()> {
     let api_context = ApiContext {
         config: Arc::new(config),
@@ -38,6 +51,9 @@ pub async fn serve(config: Config, db: Surreal<Client>) -> anyhow::Result<()> {
         .context("error running HTTP server")
 }
 
+/// Creates a router for the API context and merges all the handlers for the different routes.
+/// It also adds a trace layer for HTTP requests and sets the API context as the state of the router.
+/// Returns the router.
 fn api_router(api_context: ApiContext) -> Router {
     Router::new()
         .merge(handlers::dose_router(api_context.clone()))
