@@ -5,6 +5,7 @@ use axum::Json;
 use serde::Deserialize;
 use serde::Serialize;
 use surrealdb::sql::{ Thing, Datetime };
+use rustrict::CensorStr;
 
 use crate::api::error::Error;
 use crate::api::ApiContext;
@@ -56,6 +57,10 @@ pub(crate) async fn create_med(
     ctx: State<ApiContext>,
     Json(medication): Json<CreateMedication>,
 ) -> Result<Json<Option<Medication>>, Error> {
+    match is_name_valid(&medication.name) {
+        true => (),
+        false => return Err(Error::BadRequest),
+    }
     let mut sql = ctx.db.query(
         "CREATE medication SET user = type::thing('user', $user), name = $name;")
         .bind(("user", medication.user))
@@ -134,4 +139,24 @@ pub(crate) async fn delete_med(ctx: State<ApiContext>, id: Path<String>) -> Resu
 pub(crate) async fn list_meds(ctx: State<ApiContext>,) -> Result<Json<Vec<Medication>>, Error> {
     let medications = ctx.db.select(MEDICATION).await?;
     Ok(Json(medications))
+}
+
+const ALLOWED_CHARACTERS: &str = r#"
+abcdefghijklmnopoqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 ?!@#$%^&*(){}[];:'"\|/,.<>-_=+`
+😂🤣🤔🤨🙄😭😎🥶😤👍👎💀🗿🔥🎄🎃🔺🔻🤡🎪🎶🎵
+"#;
+
+pub fn sanitize_name(s: &str) -> String {
+    let mut escaped_message = s.to_string();
+    escaped_message.retain(|c| ALLOWED_CHARACTERS.contains(c));
+    escaped_message
+}
+
+fn is_name_valid(name: &str) -> bool {
+    if name.len() < 3 || name.len() > 14 || name.to_ascii_uppercase().contains("SERVER") {
+        return false;
+    }
+    let mut sanitized_name = sanitize_name(name);
+    sanitized_name = sanitized_name.censor();
+    sanitized_name == name
 }

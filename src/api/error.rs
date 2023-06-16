@@ -45,6 +45,10 @@ pub enum Error {
     /// for security reasons.
     #[error("an internal server error occurred")]
     Anyhow(#[from] anyhow::Error),
+
+    #[error("forbidden wording used")]
+    BadRequest,
+
 }
 
 impl Error {
@@ -73,6 +77,7 @@ impl Error {
             Self::NotFound => StatusCode::NOT_FOUND,
             Self::UnprocessableEntity { .. } => StatusCode::UNPROCESSABLE_ENTITY,
             Self::Db | Self::Anyhow(_) => StatusCode::INTERNAL_SERVER_ERROR,
+            Self::BadRequest => StatusCode::BAD_REQUEST,
         }
     }
 }
