@@ -27,6 +27,7 @@ const STORE: &str = "store";
 #[derive(Serialize, Deserialize)]
 pub struct Store {
     id: Thing,
+    user: Thing,
     medication: Thing,
     production_date: Datetime,
     expiration_date: Datetime,
@@ -47,6 +48,7 @@ pub struct Store {
 /// * `unit` - a `String` representing the unit of measurement for the medication quantity.
 #[derive(Serialize, Deserialize)]
 pub struct CreateStore {
+    user: String,
     medication: String,
     production_date: Datetime,
     expiration_date: Datetime,
@@ -65,8 +67,9 @@ pub(crate) async fn create_store(
 ) -> Result<Json<Option<Store>>, Error> {
     //TODO: Evaluate if the <decimal> function here on quantity is necessary
     let mut sql = ctx.db.query(
-        "CREATE store SET medication = type::thing('medication', $medication), production_date = $production_date,
+        "CREATE store SET  user = type::thing('user', $user), medication = type::thing('medication', $medication), production_date = $production_date,
         expiration_date = $expiration_date, lot_number = $lot_number , quantity = <decimal> $quantity, unit = $unit;")
+        .bind(("user", store.user))
         .bind(("medication", store.medication))
         .bind(("production_date", store.production_date))
         .bind(("expiration_date", store.expiration_date))
@@ -110,9 +113,10 @@ pub(crate) async fn update_store(
     Json(store): Json<Store>,
 ) -> Result<Json<Option<Store>>, Error> {
     let mut sql = ctx.db.query(
-        "UPDATE type::thing('store', $id) SET medication = type::thing('medication', $medication), production_date = $production_date,
+        "UPDATE type::thing('store', $id) SET  user = type::thing('user', $user), medication = type::thing('medication', $medication), production_date = $production_date,
         expiration_date = $expiration_date, lot_number = $lot_number , quantity = $quantity, unit = $unit;")
         .bind(("id", &*id))
+        .bind(("user", store.user))
         .bind(("medication", store.medication))
         .bind(("production_date", store.production_date))
         .bind(("expiration_date", store.expiration_date))

@@ -26,6 +26,7 @@ const NOTE: &str = "note";
 #[derive(Serialize, Deserialize)]
 pub struct Note {
     id: Option<Thing>,
+    user: Option<Thing>,
     note_table: String,
     note_thing: String,
     content: String,
@@ -33,6 +34,7 @@ pub struct Note {
     updated: Option<Datetime>,
 }
 
+//TODO: change create and update due to inclusion of user record, Optional for now.
 /// Creates a new note in the database with the provided content
 ///
 /// # Arguments

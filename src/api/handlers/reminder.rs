@@ -23,13 +23,13 @@ const REMINDER: &str = "reminder";
 #[derive(Serialize, Deserialize)]
 pub struct Reminder {
     id: Thing,
+    user: Option<String>,
     medication: Thing,
     start: Datetime,
     end: Datetime,
     days: String,
     times: Vec<String>,
     active: bool,
-    user: Option<String>,
     created: Datetime,
     updated: Datetime,
 }
@@ -46,33 +46,33 @@ pub struct Reminder {
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct CreateReminder {
+    user: String,
     medication: String,
     // start: String,
     end: Datetime,
     days: String,
     times: Vec<String>,
-    user: String,
 }
 
-/// A struct representing a reminder for updating medication
-///
-/// # Fields
-///
-/// * `id` - The unique identifier for the reminder
-/// * `medication` - The medication to be updated
-/// * `start` - The date and time when the reminder starts
-/// * `end` - The date and time when the reminder ends
-/// * `days` - The days of the week when the reminder is active
-/// * `times` - The times of day when the reminder is active
-#[derive(Serialize, Deserialize)]
-pub struct UpdateReminder {
-    id: Thing,
-    medication: Thing,
-    start: Datetime,
-    end: String,
-    days: String,
-    times: Vec<String>,
-}
+// /// A struct representing a reminder for updating medication
+// ///
+// /// # Fields
+// ///
+// /// * `id` - The unique identifier for the reminder
+// /// * `medication` - The medication to be updated
+// /// * `start` - The date and time when the reminder starts
+// /// * `end` - The date and time when the reminder ends
+// /// * `days` - The days of the week when the reminder is active
+// /// * `times` - The times of day when the reminder is active
+// #[derive(Serialize, Deserialize)]
+// pub struct UpdateReminder {
+//     id: Thing,
+//     medication: Thing,
+//     start: Datetime,
+//     end: String,
+//     days: String,
+//     times: Vec<String>,
+// }
 /// Creates a new reminder in the database with the given parameters
 ///
 /// # Arguments
@@ -88,12 +88,12 @@ pub(crate) async fn create_reminder(
     Json(reminder): Json<CreateReminder>,
 ) -> Result<Json<Option<Reminder>>, Error> {
     let mut sql = ctx.db.query(
-        "CREATE reminder SET medication = type::thing('medication', $medication), end = $end, days = $days, times = $times, user = $user;")
+        "CREATE reminder SET user = type::thing('user', $user), medication = type::thing('medication', $medication), end = $end, days = $days, times = $times;")
+        .bind(("user", reminder.user))
         .bind(("medication", reminder.medication))
         .bind(("end", reminder.end))
         .bind(("days", reminder.days))
         .bind(("times", reminder.times))
-        .bind(("user", reminder.user))
         .await?;
     let reminder: Option<Reminder> = sql.take(0)?;
     Ok(Json(reminder))
@@ -136,13 +136,13 @@ pub(crate) async fn update_reminder(
     Json(reminder): Json<CreateReminder>,
 ) -> Result<Json<Option<Reminder>>, Error> {
     let mut sql = ctx.db.query(
-        "UPDATE type::thing('reminder', $id) SET medication = type::thing('medication', $medication), end = $end, days = $days, times = $times, user = $user;")
+        "UPDATE type::thing('reminder', $id) SET user = type::thing('user', $user), medication = type::thing('medication', $medication), end = $end, days = $days, times = $times;")
         .bind(("id", &*id))
+        .bind(("user", reminder.user))
         .bind(("medication", reminder.medication))
         .bind(("end", reminder.end))
         .bind(("days", reminder.days))
         .bind(("times", reminder.times))
-        .bind(("user", reminder.user))
         .await?;
     let reminder: Option<Reminder> = sql.take(0)?;
     Ok(Json(reminder))

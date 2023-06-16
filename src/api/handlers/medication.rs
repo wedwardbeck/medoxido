@@ -16,6 +16,7 @@ const MEDICATION: &str = "medication";
 /// # Fields
 ///
 /// * `id` - An optional `Thing` representing the ID of the medication
+/// * `user` - A `Thing` representing the ID of the user who created the medication
 /// * `name` - A `String` representing the name of the medication
 /// * `created` - An optional `Datetime` representing the date and time the medication was created
 /// * `updated` - An optional `Datetime` representing the date and time the medication was last updated
@@ -23,6 +24,7 @@ const MEDICATION: &str = "medication";
 #[derive(Serialize, Deserialize)]
 pub struct Medication {
     id: Option<Thing>,
+    user: Option<Thing>,
     name: String,
     created: Option<Datetime>,
     updated: Option<Datetime>,
@@ -40,6 +42,7 @@ pub struct Medication {
 ///
 /// A `Json` object containing the newly created medication record, wrapped in an `Option` object.
 /// Creates a new medication and returns it as JSON
+//TODO: change create and update due to inclusion of user record, Optional for now.
 pub(crate) async fn create_med(
     ctx: State<ApiContext>,
     Json(medication): Json<Medication>,

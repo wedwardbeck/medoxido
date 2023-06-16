@@ -24,6 +24,7 @@ const DOSE: &str = "dose";
 #[derive(Serialize, Deserialize)]
 pub struct Dose {
     id: Thing,
+    user: Thing,
     store: Thing,
     quantity: f32,
     unit: String,
@@ -42,6 +43,7 @@ pub struct Dose {
 #[derive(Serialize, Deserialize)]
 pub struct CreateDose {
     id: Option<String>,
+    user: String,
     store: String,
     quantity: f32,
     unit: String,
@@ -63,8 +65,9 @@ pub(crate) async fn create_dose(
     Json(dose): Json<CreateDose>,
 ) -> Result<Json<Option<Dose>>, Error> {
     let mut sql = ctx.db.query(
-        "CREATE dose SET store = type::thing('store', $store), quantity = $quantity, unit = $unit;")
+        "CREATE dose SET store = type::thing('store', $store), user = type::thing('user', $user), quantity = $quantity, unit = $unit;")
         .bind(("store", dose.store))
+        .bind(("user", dose.user))
         .bind(("quantity", dose.quantity))
         .bind(("unit", dose.unit))
         .await?;
@@ -94,11 +97,13 @@ pub(crate) async fn update_dose(
     Json(dose): Json<CreateDose>,
 ) -> Result<Json<Option<Dose>>, Error> {
     let mut sql = ctx.db.query(
-        "UPDATE type::thing('dose', $id) SET quantity = $quantity, unit = $unit, store = type::thing('store', $store);")
+        "UPDATE type::thing('dose', $id) SET quantity = $quantity, unit = $unit, store = type::thing('store', $store),
+        user = type::thing('user', $user);")
         .bind(("id", &*id))
         .bind(("quantity", dose.quantity))
         .bind(("unit", dose.unit))
         .bind(("store", dose.store))
+        .bind(("user", dose.user))
         .await?;
     let dose: Option<Dose> = sql.take(0)?;
     Ok(Json(dose))
