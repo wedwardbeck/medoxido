@@ -1,6 +1,6 @@
 DEFINE TABLE reminder SCHEMAFULL;
 
-DEFINE FIELD user ON TABLE reminder TYPE string ASSERT $value != NONE;
+DEFINE FIELD user ON TABLE reminder TYPE record(user) ASSERT $value != NONE;
 DEFINE FIELD medication ON TABLE reminder TYPE record(medication) ASSERT $value != NONE;
 DEFINE FIELD start ON TABLE reminder TYPE datetime ASSERT $value != NONE;
 DEFINE FIELD end ON TABLE reminder TYPE datetime ASSERT $value != NONE;

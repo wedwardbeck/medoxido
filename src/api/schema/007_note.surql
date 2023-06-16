@@ -1,5 +1,6 @@
 DEFINE TABLE note SCHEMAFULL;
 
+DEFINE FIELD user ON TABLE note TYPE record(user) ASSERT $value != NONE;
 DEFINE FIELD note_table ON TABLE note TYPE string ASSERT $value != NONE;
 DEFINE FIELD note_thing ON TABLE note TYPE string ASSERT $value != NONE;
 DEFINE FIELD content ON TABLE note TYPE string ASSERT $value != NONE;

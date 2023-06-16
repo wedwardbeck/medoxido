@@ -34,7 +34,16 @@ pub struct Note {
     updated: Option<Datetime>,
 }
 
-//TODO: change create and update due to inclusion of user record, Optional for now.
+#[derive(Serialize, Deserialize)]
+pub struct CreateNote {
+    user: String,
+    note_table: String,
+    note_thing: String,
+    content: String,
+    created: Option<Datetime>,
+    updated: Option<Datetime>,
+}
+
 /// Creates a new note in the database with the provided content
 ///
 /// # Arguments
@@ -48,9 +57,16 @@ pub struct Note {
 /// If the note was not created successfully, returns an `Error`.
 pub(crate) async fn create_note(
     ctx: State<ApiContext>,
-    Json(note): Json<Note>,
+    Json(note): Json<CreateNote>,
 ) -> Result<Json<Option<Note>>, Error> {
-    let note = ctx.db.create(NOTE).content(note).await?;
+    let mut sql = ctx.db.query(
+        "CREATE note SET user = type::thing('user', $user), note_table = $note_table, note_thing = $note_thing, content = $content;")
+        .bind(("user", note.user))
+        .bind(("note_table", note.note_table))
+        .bind(("note_thing", note.note_thing))
+        .bind(("content", note.content))
+        .await?;
+    let note: Option<Note> = sql.take(0)?;
     Ok(Json(note))
 }
 
@@ -91,9 +107,17 @@ pub(crate) async fn read_note(ctx: State<ApiContext>, id: Path<String>) -> Resul
 pub(crate) async fn update_note(
     ctx: State<ApiContext>,
     id: Path<String>,
-    Json(note): Json<Note>,
+    Json(note): Json<CreateNote>,
 ) -> Result<Json<Option<Note>>, Error> {
-    let note = ctx.db.update((NOTE, &*id)).content(note).await?;
+    let mut sql = ctx.db.query(
+        "UPDATE type::thing('note', $id) SET user = type::thing('user', $user), note_table = $note_table, note_thing = $note_thing, content = $content;")
+        .bind(("id", &*id))
+        .bind(("user", note.user))
+        .bind(("note_table", note.note_table))
+        .bind(("note_thing", note.note_thing))
+        .bind(("content", note.content))
+        .await?;
+    let note: Option<Note> = sql.take(0)?;
     Ok(Json(note))
 }
 

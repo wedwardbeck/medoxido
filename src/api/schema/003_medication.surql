@@ -1,13 +1,13 @@
-DEFINE TABLE reminder SCHEMAFULL;
+DEFINE TABLE medication SCHEMAFULL;
 
-DEFINE FIELD user ON TABLE reminder TYPE record(user) ASSERT $value != NONE;
-DEFINE FIELD name ON TABLE reminder TYPE string ASSERT $value != NONE;
-DEFINE FIELD active ON TABLE reminder TYPE bool VALUE $value ?? true;  -- Defaulting the value to true if not provide
-DEFINE FIELD created ON reminder VALUE $before OR time::now();
-DEFINE FIELD updated ON reminder VALUE time::now();
+DEFINE FIELD user ON TABLE medication TYPE record(user) ASSERT $value != NONE;
+DEFINE FIELD name ON TABLE medication TYPE string ASSERT $value != NONE;
+DEFINE FIELD active ON TABLE medication TYPE bool VALUE $value ?? true;  -- Defaulting the value to true if not provide
+DEFINE FIELD created ON medication VALUE $before OR time::now();
+DEFINE FIELD updated ON medication VALUE time::now();
 
 //  Indexes
-DEFINE INDEX reminder_index ON medication FIELDS name UNIQUE;
+DEFINE INDEX medication_index ON medication FIELDS name UNIQUE;
 
 // Events
 //TODO: Verify structure once Beta 10 is released

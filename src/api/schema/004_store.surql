@@ -1,6 +1,6 @@
 DEFINE TABLE store SCHEMAFULL;
 
-DEFINE FIELD user ON TABLE store TYPE string ASSERT $value != NONE;
+DEFINE FIELD user ON TABLE store TYPE record(user) ASSERT $value != NONE;
 DEFINE FIELD medication ON TABLE store TYPE record(medication) ASSERT $value != NONE;
 DEFINE FIELD production_date ON TABLE store TYPE datetime;
 DEFINE FIELD expiration_date ON TABLE store TYPE datetime;

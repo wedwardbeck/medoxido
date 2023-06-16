@@ -65,9 +65,9 @@ pub(crate) async fn create_dose(
     Json(dose): Json<CreateDose>,
 ) -> Result<Json<Option<Dose>>, Error> {
     let mut sql = ctx.db.query(
-        "CREATE dose SET store = type::thing('store', $store), user = type::thing('user', $user), quantity = $quantity, unit = $unit;")
-        .bind(("store", dose.store))
+        "CREATE dose SET user = type::thing('user', $user), store = type::thing('store', $store), quantity = $quantity, unit = $unit;")
         .bind(("user", dose.user))
+        .bind(("store", dose.store))
         .bind(("quantity", dose.quantity))
         .bind(("unit", dose.unit))
         .await?;

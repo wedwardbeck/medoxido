@@ -23,8 +23,17 @@ const MEDICATION: &str = "medication";
 /// * `active` - An optional `bool` representing whether the medication is currently active or not
 #[derive(Serialize, Deserialize)]
 pub struct Medication {
-    id: Option<Thing>,
-    user: Option<Thing>,
+    id: Thing,
+    user: Thing,
+    name: String,
+    created: Option<Datetime>,
+    updated: Option<Datetime>,
+    active: Option<bool>,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct CreateMedication {
+    user: String,
     name: String,
     created: Option<Datetime>,
     updated: Option<Datetime>,
@@ -45,9 +54,14 @@ pub struct Medication {
 //TODO: change create and update due to inclusion of user record, Optional for now.
 pub(crate) async fn create_med(
     ctx: State<ApiContext>,
-    Json(medication): Json<Medication>,
+    Json(medication): Json<CreateMedication>,
 ) -> Result<Json<Option<Medication>>, Error> {
-    let medication = ctx.db.create(MEDICATION).content(medication).await?;
+    let mut sql = ctx.db.query(
+        "CREATE medication SET user = type::thing('user', $user), name = $name;")
+        .bind(("user", medication.user))
+        .bind(("name", medication.name))
+        .await?;
+    let medication: Option<Medication> = sql.take(0)?;
     Ok(Json(medication))
 }
 
@@ -81,9 +95,15 @@ pub(crate) async fn read_med(ctx: State<ApiContext>, id: Path<String>) -> Result
 pub(crate) async fn update_med(
     ctx: State<ApiContext>,
     id: Path<String>,
-    Json(medication): Json<Medication>,
+    Json(medication): Json<CreateMedication>,
 ) -> Result<Json<Option<Medication>>, Error> {
-    let medication = ctx.db.update((MEDICATION, &*id)).content(medication).await?;
+    let mut sql = ctx.db.query(
+        "UPDATE type::thing('medication', $id) SET user = type::thing('user', $user), name = $name;")
+        .bind(("id", &*id))
+        .bind(("user", medication.user))
+        .bind(("name", medication.name))
+        .await?;
+    let medication: Option<Medication> = sql.take(0)?;
     Ok(Json(medication))
 }
 
