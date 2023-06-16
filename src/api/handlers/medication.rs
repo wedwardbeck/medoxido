@@ -51,7 +51,7 @@ pub struct CreateMedication {
 ///
 /// A `Json` object containing the newly created medication record, wrapped in an `Option` object.
 /// Creates a new medication and returns it as JSON
-//TODO: change create and update due to inclusion of user record, Optional for now.
+
 pub(crate) async fn create_med(
     ctx: State<ApiContext>,
     Json(medication): Json<CreateMedication>,
