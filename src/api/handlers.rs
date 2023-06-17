@@ -8,6 +8,7 @@ pub(crate) mod reminder;
 pub(crate) mod note;
 pub(crate) mod store;
 pub(crate) mod uom;
+pub(crate) mod user;
 
 use crate::api::ApiContext;
 
@@ -144,4 +145,11 @@ pub(crate) fn uom_router(api_context: ApiContext) -> Router<ApiContext> {
     .route("/uoms", get(uom::list_uoms))
     .layer(TraceLayer::new_for_http())
     .with_state(api_context)
+}
+
+pub(crate) fn user_router(api_context: ApiContext) -> Router<ApiContext> {
+    Router::new()
+        .route("/users", post(user::create_user))
+        .route("/users/login", post(user::login_user))
+        .route("/user", get(user::get_current_user).put(user::update_user))
 }

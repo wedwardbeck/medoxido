@@ -12,6 +12,8 @@ use crate::config::Config;
 pub mod handlers;
 pub mod error;
 pub use error::{Error};
+pub mod extractor;
+// pub use extractor;
 
 // pub type Result<T, E = Error> = std::result::Result<T, E>;
 
@@ -62,6 +64,7 @@ fn api_router(api_context: ApiContext) -> Router {
         .merge(handlers::note_router(api_context.clone()))
         .merge(handlers::store_router(api_context.clone()))
         .merge(handlers::uom_router(api_context.clone()))
+        .merge(handlers::user_router(api_context.clone()))
         // Enables logging. Use `RUST_LOG=tower_http=debug`
         .layer(TraceLayer::new_for_http())
         .with_state(api_context)
