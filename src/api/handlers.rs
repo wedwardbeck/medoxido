@@ -145,3 +145,6 @@ pub(crate) fn uom_router(api_context: ApiContext) -> Router<ApiContext> {
     .layer(TraceLayer::new_for_http())
     .with_state(api_context)
 }
+
+//TODO: Deal with any table index constraints in the client side ahead of time.
+//TODO: Revisit this approach of prechecks when we switch to embedded since it should have better error responses
