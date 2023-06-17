@@ -36,6 +36,11 @@ pub enum Error {
         errors: HashMap<Cow<'static, str>, Vec<Cow<'static, str>>>,
     },
 
+    #[error("unique constraint violation")]
+    UniqueViolation {
+        field: Cow<'static, str>,
+    },
+
     #[error("database error")]
     Db,
 
@@ -66,6 +71,12 @@ impl Error {
         Self::UnprocessableEntity { errors: error_map }
     }
 
+    pub fn unique_violation(field: impl Into<Cow<'static, str>>) -> Self {
+        Self::UniqueViolation {
+            field: field.into(),
+        }
+    }
+
     fn status_code(&self) -> StatusCode {
         match self {
             Self::Unauthorized => StatusCode::UNAUTHORIZED,
@@ -73,6 +84,7 @@ impl Error {
             Self::NotFound => StatusCode::NOT_FOUND,
             Self::UnprocessableEntity { .. } => StatusCode::UNPROCESSABLE_ENTITY,
             Self::Db | Self::Anyhow(_) => StatusCode::INTERNAL_SERVER_ERROR,
+            Self::UniqueViolation { .. } => StatusCode::CONFLICT,
         }
     }
 }
@@ -110,6 +122,22 @@ impl IntoResponse for Error {
                 )
                     .into_response();
             }
+            Self::UniqueViolation { field } => {
+                #[derive(serde::Serialize)]
+                struct ConflictError {
+                    message: Cow<'static, str>,
+                    field: Cow<'static, str>,
+                }
+
+                return (
+                    StatusCode::CONFLICT,
+                    Json(ConflictError {
+                        message: Cow::Borrowed("Unique constraint violation"),
+                        field,
+                    }),
+                )
+                    .into_response();
+            }
 
 
             Self::Anyhow(ref e) => {
@@ -129,7 +157,15 @@ impl IntoResponse for Error {
 
 impl From<surrealdb::Error> for Error {
     fn from(error: surrealdb::Error) -> Self {
-        eprintln!("{error}");
-        Self::Db
+        match error {
+            surrealdb::Error { field } => {
+                eprintln!("Unique violation: {}", field);
+                Self::unique_violation(field)
+            }
+            _ => {
+                eprintln!("{}", error);
+                Self::Db
+            }
+        }
     }
 }
