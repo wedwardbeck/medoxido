@@ -23,7 +23,7 @@ const NOTE: &str = "note";
 /// * `content` - The content of the note
 /// * `created` - The date the note was created
 /// * `updated` - The date the note was last updated
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct Note {
     id: Option<Thing>,
     user: Option<Thing>,
@@ -118,6 +118,7 @@ pub(crate) async fn update_note(
         .bind(("content", note.content))
         .await?;
     let note: Option<Note> = sql.take(0)?;
+    dbg!(&note);
     Ok(Json(note))
 }
 
@@ -155,32 +156,35 @@ pub(crate) async fn list_notes(ctx: State<ApiContext>,) -> Result<Json<Vec<Note>
     Ok(Json(notes))
 }
 
-#[derive(Serialize, Deserialize)]
+
+#[derive(Serialize, Deserialize, Debug)]
 pub struct DoseNote {
-    // user: String,
+    content: String,
+    created: String,
+    dose_created: String,
     dose_id: String,
     dose_quantity: f32,
-    unit: String,
-    store_id: String,
-    store_start_quantity: f32,
-    store_production_date: Datetime,
-    dose_created: Datetime,
-    dose_updated: Datetime,
+    dose_updated: String,
+    id: String,
     medication_id: String,
     medication_name: String,
     note_table: String,
     note_thing: String,
-    content: String,
-    created: Datetime,
-    updated: Datetime,
-    id: Thing,
+    store_id: String,
+    store_production_date: String,
+    store_start_quantity: f32,
+    unit: String,
+    updated: String,
+    // user: String,
 }
 
 pub(crate) async fn list_all_dose_notes(ctx: State<ApiContext>,) -> Result<Json<Vec<DoseNote>>, Error> {
     let mut sql = ctx.db.query(
         "RETURN fn::list_all_dose_notes();")
         .await?;
+    // dbg!(&sql);
     let notes: Vec<DoseNote> = sql.take(0)?;
+    dbg!(&notes);
     Ok(Json(notes))
 }
 
@@ -192,5 +196,5 @@ pub(crate) async fn list_notes_for_dose(ctx: State<ApiContext>, id: Path<String>
     let notes: Vec<DoseNote> = sql.take(0)?;
     Ok(Json(notes))
 }
-
+//TODO: Resume function use once new beta out - https://discord.com/channels/902568124350599239/1014970959461105664/1093804883037147197
 //TODO: Add function to list notes by tables and things (objects)
