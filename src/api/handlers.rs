@@ -74,6 +74,8 @@ pub(crate) fn note_router(api_context: ApiContext) -> Router<ApiContext> {
     .route("/note/:id", put(note::update_note))
     .route("/note/:id", delete(note::delete_note))
     .route("/notes", get(note::list_notes))
+    .route("/notes/dose", get(note::list_all_dose_notes))
+    .route("/notes/dose/:id", get(note::list_notes_for_dose))
     .layer(TraceLayer::new_for_http())
     .with_state(api_context)
 }

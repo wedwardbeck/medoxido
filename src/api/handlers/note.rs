@@ -155,4 +155,42 @@ pub(crate) async fn list_notes(ctx: State<ApiContext>,) -> Result<Json<Vec<Note>
     Ok(Json(notes))
 }
 
+#[derive(Serialize, Deserialize)]
+pub struct DoseNote {
+    // user: String,
+    dose_id: String,
+    dose_quantity: f32,
+    unit: String,
+    store_id: String,
+    store_start_quantity: f32,
+    store_production_date: Datetime,
+    dose_created: Datetime,
+    dose_updated: Datetime,
+    medication_id: String,
+    medication_name: String,
+    note_table: String,
+    note_thing: String,
+    content: String,
+    created: Datetime,
+    updated: Datetime,
+    id: Thing,
+}
+
+pub(crate) async fn list_all_dose_notes(ctx: State<ApiContext>,) -> Result<Json<Vec<DoseNote>>, Error> {
+    let mut sql = ctx.db.query(
+        "RETURN fn::list_all_dose_notes();")
+        .await?;
+    let notes: Vec<DoseNote> = sql.take(0)?;
+    Ok(Json(notes))
+}
+
+pub(crate) async fn list_notes_for_dose(ctx: State<ApiContext>, id: Path<String>) -> Result<Json<Vec<DoseNote>>, Error> {
+    let mut sql = ctx.db.query(
+        "RETURN fn::list_notes_for_dose($id);")
+        .bind(("id", &*id))
+        .await?;
+    let notes: Vec<DoseNote> = sql.take(0)?;
+    Ok(Json(notes))
+}
+
 //TODO: Add function to list notes by tables and things (objects)
