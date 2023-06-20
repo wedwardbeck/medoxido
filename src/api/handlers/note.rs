@@ -155,26 +155,24 @@ pub(crate) async fn list_notes(ctx: State<ApiContext>,) -> Result<Json<Vec<Note>
     let notes = ctx.db.select(NOTE).await?;
     Ok(Json(notes))
 }
-
-
 #[derive(Serialize, Deserialize, Debug)]
 pub struct DoseNote {
     content: String,
-    created: String,
+    created: Datetime,
     dose_created: String,
-    dose_id: String,
+    dose_id: Thing,
     dose_quantity: f32,
     dose_updated: String,
-    id: String,
-    medication_id: String,
+    id: Thing,
+    medication_id: Thing,
     medication_name: String,
     note_table: String,
     note_thing: String,
-    store_id: String,
-    store_production_date: String,
+    store_id: Thing,
+    store_production_date: Datetime,
     store_start_quantity: f32,
     unit: String,
-    updated: String,
+    updated: Datetime,
     // user: String,
 }
 
@@ -196,5 +194,4 @@ pub(crate) async fn list_notes_for_dose(ctx: State<ApiContext>, id: Path<String>
     let notes: Vec<DoseNote> = sql.take(0)?;
     Ok(Json(notes))
 }
-//TODO: Resume function use once new beta out - https://discord.com/channels/902568124350599239/1014970959461105664/1093804883037147197
 //TODO: Add function to list notes by tables and things (objects)
