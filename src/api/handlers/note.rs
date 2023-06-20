@@ -173,25 +173,76 @@ pub struct DoseNote {
     store_start_quantity: f32,
     unit: String,
     updated: Datetime,
-    // user: String,
+    user: Thing,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct MedNote {
+    id: Thing,
+    content: String,
+    created: Datetime,
+    medication_id: Thing,
+    medication_name: String,
+    note_table: String,
+    note_thing: String,
+    updated: Datetime,
+    user: Thing,
+}
+#[derive(Serialize, Deserialize, Debug)]
+pub struct StoreNote {
+    id: Thing,
+    content: String,
+    created: Datetime,
+    medication_id: Thing,
+    medication_name: String,
+    note_table: String,
+    note_thing: String,
+    store_created: String,
+    store_id: Thing,
+    store_production_date: Datetime,
+    store_start_quantity: f32,
+    store_updated: String,
+    unit: String,
+    updated: Datetime,
+    user: Thing,
 }
 
 pub(crate) async fn list_all_dose_notes(ctx: State<ApiContext>,) -> Result<Json<Vec<DoseNote>>, Error> {
     let mut sql = ctx.db.query(
         "RETURN fn::list_all_dose_notes();")
         .await?;
-    // dbg!(&sql);
     let notes: Vec<DoseNote> = sql.take(0)?;
     dbg!(&notes);
     Ok(Json(notes))
 }
 
-pub(crate) async fn list_notes_for_dose(ctx: State<ApiContext>, id: Path<String>) -> Result<Json<Vec<DoseNote>>, Error> {
+pub(crate) async fn list_notes_for_dose(ctx: State<ApiContext>, id: Path<String>) ->
+Result<Json<Vec<DoseNote>>, Error> {
     let mut sql = ctx.db.query(
         "RETURN fn::list_notes_for_dose($id);")
         .bind(("id", &*id))
         .await?;
     let notes: Vec<DoseNote> = sql.take(0)?;
+    Ok(Json(notes))
+}
+
+pub(crate) async fn list_notes_for_medication(ctx: State<ApiContext>, id: Path<String>) ->
+Result<Json<Vec<MedNote>>, Error> {
+    let mut sql = ctx.db.query(
+        "RETURN fn::list_notes_for_medication($id);")
+        .bind(("id", &*id))
+        .await?;
+    let notes: Vec<MedNote> = sql.take(0)?;
+    Ok(Json(notes))
+}
+
+pub(crate) async fn list_notes_for_store(ctx: State<ApiContext>, id: Path<String>) ->
+Result<Json<Vec<StoreNote>>, Error> {
+    let mut sql = ctx.db.query(
+        "RETURN fn::list_notes_for_store($id);")
+        .bind(("id", &*id))
+        .await?;
+    let notes: Vec<StoreNote> = sql.take(0)?;
     Ok(Json(notes))
 }
 //TODO: Add function to list notes by tables and things (objects)
