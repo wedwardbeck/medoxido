@@ -25,6 +25,8 @@ pub(crate) fn dose_router(api_context: ApiContext) -> Router<ApiContext> {
     .route("/dose/:id", put(dose::update_dose))
     .route("/dose/:id", delete(dose::delete_dose))
     .route("/doses", get(dose::list_doses))
+    .route("/doses/medication/:id", get(dose::list_doses_for_medication))
+    .route("/doses/store/:id", get(dose::list_doses_for_store))
     .layer(TraceLayer::new_for_http())
     .with_state(api_context)
 }
@@ -76,7 +78,9 @@ pub(crate) fn note_router(api_context: ApiContext) -> Router<ApiContext> {
     .route("/notes", get(note::list_notes))
     .route("/notes/dose", get(note::list_all_dose_notes))
     .route("/notes/dose/:id", get(note::list_notes_for_dose))
+    .route("/notes/med", get(note::list_all_medication_notes))
     .route("/notes/med/:id", get(note::list_notes_for_medication))
+    .route("/notes/store", get(note::list_all_store_notes))
     .route("/notes/store/:id", get(note::list_notes_for_store))
     .layer(TraceLayer::new_for_http())
     .with_state(api_context)

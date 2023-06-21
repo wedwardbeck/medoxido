@@ -177,10 +177,11 @@ pub struct DoseNote {
 }
 
 #[derive(Serialize, Deserialize, Debug)]
-pub struct MedNote {
+pub struct MedicationNote {
     id: Thing,
     content: String,
     created: Datetime,
+    medication_active: bool,
     medication_id: Thing,
     medication_name: String,
     note_table: String,
@@ -197,6 +198,7 @@ pub struct StoreNote {
     medication_name: String,
     note_table: String,
     note_thing: String,
+    store_active: bool,
     store_created: String,
     store_id: Thing,
     store_production_date: Datetime,
@@ -226,13 +228,31 @@ Result<Json<Vec<DoseNote>>, Error> {
     Ok(Json(notes))
 }
 
+pub(crate) async fn list_all_medication_notes(ctx: State<ApiContext>,) -> Result<Json<Vec<MedicationNote>>, Error> {
+    let mut sql = ctx.db.query(
+        "RETURN fn::list_all_medication_notes();")
+        .await?;
+    let notes: Vec<MedicationNote> = sql.take(0)?;
+    dbg!(&notes);
+    Ok(Json(notes))
+}
+
 pub(crate) async fn list_notes_for_medication(ctx: State<ApiContext>, id: Path<String>) ->
-Result<Json<Vec<MedNote>>, Error> {
+Result<Json<Vec<MedicationNote>>, Error> {
     let mut sql = ctx.db.query(
         "RETURN fn::list_notes_for_medication($id);")
         .bind(("id", &*id))
         .await?;
-    let notes: Vec<MedNote> = sql.take(0)?;
+    let notes: Vec<MedicationNote> = sql.take(0)?;
+    Ok(Json(notes))
+}
+
+pub(crate) async fn list_all_store_notes(ctx: State<ApiContext>,) -> Result<Json<Vec<StoreNote>>, Error> {
+    let mut sql = ctx.db.query(
+        "RETURN fn::list_all_store_notes();")
+        .await?;
+    let notes: Vec<StoreNote> = sql.take(0)?;
+    dbg!(&notes);
     Ok(Json(notes))
 }
 

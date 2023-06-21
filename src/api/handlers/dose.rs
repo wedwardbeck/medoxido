@@ -138,6 +138,45 @@ pub(crate) async fn list_doses(ctx: State<ApiContext>,) -> Result<Json<Vec<Dose>
     Ok(Json(doses))
 }
 
+#[derive(Serialize, Deserialize)]
+pub struct DoseList {
+    created: Datetime,
+    id: Thing,
+    dose_quantity: f32,
+    dose_unit: String,
+    medication_id: Thing,
+    medication_name: String,
+    store_active: bool,
+    store_created: Datetime,
+    store_id: Thing,
+    store_production_date: Datetime,
+    store_start_quantity: f32,
+    store_unit: String,
+    store_updated: Datetime,
+    updated: Datetime,
+    user: Thing,
+}
+
+pub(crate) async fn list_doses_for_medication(ctx: State<ApiContext>, id: Path<String>) ->
+Result<Json<Vec<DoseList>>, Error> {
+    let mut sql = ctx.db.query(
+        "RETURN fn::list_doses_for_medication($id);")
+        .bind(("id", &*id))
+        .await?;
+    let notes: Vec<DoseList> = sql.take(0)?;
+    Ok(Json(notes))
+}
+
+pub(crate) async fn list_doses_for_store(ctx: State<ApiContext>, id: Path<String>) ->
+Result<Json<Vec<DoseList>>, Error> {
+    let mut sql = ctx.db.query(
+        "RETURN fn::list_doses_for_store($id);")
+        .bind(("id", &*id))
+        .await?;
+    let notes: Vec<DoseList> = sql.take(0)?;
+    Ok(Json(notes))
+}
+
 //TODO: Add tests for dose handlers
 //TODO: add function to get all doses for a given medication
 //TODO: add function to get summary data on doses - stats for graphing, ot other reports
