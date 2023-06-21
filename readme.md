@@ -1,6 +1,8 @@
 ## medóxido
 a Medication Tracker built on Rust
 
+[![Coverage](https://github.com/wedwardbeck/medoxido/actions/workflows/rust.yml/badge.svg)](https://github.com/wedwardbeck/medoxido/actions/workflows/rust.yml)
+
 ## What is Medóxido?
 medóxido (med ohk-see-doh), a combination of medication and óxido (Rust in Spanish), is a stand-alone medication tracker with reminders, notes, medication interaction information, and analytical reports to show trends, correlations, and other helpful feedback.  It is intended to be installed locally on most common platforms and uses a local built-in database engine and local file.
 
