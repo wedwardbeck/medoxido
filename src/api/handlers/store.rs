@@ -30,12 +30,13 @@ pub struct Store {
     user: Thing,
     medication: Thing,
     production_date: Datetime,
-    expiration_date: Datetime,
+    expiration_date: Option<Datetime>,
     lot_number: String,
     quantity: f32,
     unit: String,
     created: Datetime,
     updated: Datetime,
+    active: bool,
 }
 
 /// A struct representing the creation of a store with the following fields:
@@ -51,7 +52,7 @@ pub struct CreateStore {
     user: String,
     medication: String,
     production_date: Datetime,
-    expiration_date: Datetime,
+    expiration_date: Option<Datetime>,
     lot_number: String,
     quantity: f32,
     unit: String,
@@ -128,6 +129,19 @@ pub(crate) async fn update_store(
     Ok(Json(store))
 }
 
+pub(crate) async fn deactivate_store(
+    ctx: State<ApiContext>,
+    id: Path<String>,
+    // Json(store): Json<Store>,
+) -> Result<Json<Option<Store>>, Error> {
+    let mut sql = ctx.db.query(
+        "UPDATE type::thing('store', $id) SET  active = false;")
+        .bind(("id", &*id))
+        .await?;
+    let store: Option<Store> = sql.take(0)?;
+    Ok(Json(store))
+}
+
 /// Deletes a store from the database
 ///
 /// # Arguments
@@ -161,5 +175,77 @@ pub(crate) async fn list_stores(ctx: State<ApiContext>,) -> Result<Json<Vec<Stor
     Ok(Json(stores))
 }
 
-// write function to get all stores for a given medication
-// write function to get all active stores
+//TODO: Need to review and assess use of user for all queries to keep records isolated in case of multuiple users
+#[derive(Serialize, Deserialize)]
+pub struct StoreBool {
+    active: Option<bool>,
+    medication: String,
+    user: String,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct StoreList {
+    medication_id: Thing,
+    medication_name: String,
+    store_active: bool,
+    store_created: Datetime,
+    store_expiration_date: Option<Datetime>,
+    store_id: Thing,
+    store_lot_number: String,
+    store_production_date: Datetime,
+    store_start_quantity: f32,
+    store_unit: String,
+    store_updated: Datetime,
+    user: Thing,
+}
+
+/// Lists all stores for a given medication and user based on the active status of the store
+///
+/// # Arguments
+///
+/// * `ctx` - A `State` object containing the `ApiContext`
+/// * `Json(store_bool)` - A JSON object containing the medication ID, active status, and user ID
+///
+/// # Returns
+///
+/// A JSON object containing a list of stores that match the given medication ID and active status.
+pub(crate) async fn list_stores_for_medication(
+    ctx: State<ApiContext>,
+    Json(store_bool): Json<StoreBool>,
+) -> Result<Json<Vec<StoreList>>, Error> {
+    let mut sql = ctx.db.query(
+        "RETURN fn::list_stores_for_medication($id, $bool, $user);")
+        .bind(("id", store_bool.medication))
+        .bind(("bool", store_bool.active))
+        .bind(("user", store_bool.user))
+        .await?;
+    let stores: Vec<StoreList> = sql.take(0)?;
+    Ok(Json(stores))
+}
+
+/// Lists all stores for a given medication and user
+///
+/// # Arguments
+///
+/// * `ctx` - The API context
+/// * `store_bool` - A JSON object containing the medication ID and user ID
+///
+/// # Returns
+///
+/// A JSON object containing a list of stores for the given medication and user
+///
+/// # Errors
+///
+/// Returns an error if the query fails.
+pub(crate) async fn list_all_stores_for_medication(
+    ctx: State<ApiContext>,
+    Json(store_bool): Json<StoreBool>,
+) -> Result<Json<Vec<StoreList>>, Error> {
+    let mut sql = ctx.db.query(
+        "RETURN fn::list_all_stores_for_medication($id, $user);")
+        .bind(("id", store_bool.medication))
+        .bind(("user", store_bool.user))
+        .await?;
+    let stores: Vec<StoreList> = sql.take(0)?;
+    Ok(Json(stores))
+}

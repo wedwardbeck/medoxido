@@ -14,3 +14,19 @@ DEFINE FIELD updated ON store VALUE time::now();
 
 //  Indexes
 -- DEFINE INDEX store_index ON TABLE store COLUMNS user, medication, start, active UNIQUE;
+
+// Functions
+DEFINE FUNCTION fn::list_stores_for_medication($id: string, $active: bool, $user: string) {LET $results = (SELECT id AS store_id,
+medication AS medication_id, medication.name AS medication_name, quantity AS store_start_quantity,
+production_date AS store_production_date, unit AS store_unit, created AS store_created, updated AS store_updated,
+lot_number AS store_lot_number, expiration_date AS store_expiration_date, active AS store_active, user AS user
+FROM store WHERE medication = type::thing('medication', $id) AND $active = active AND user = type::thing('user', $user)
+ORDER BY store_created);
+RETURN $results;};
+
+DEFINE FUNCTION fn::list_all_stores_for_medication($id: string, $user: string) {let $results = (select id as store_id,
+medication as medication_id, medication.name as medication_name, quantity as store_start_quantity,
+production_date as store_production_date, unit as store_unit, created as store_created, updated as store_updated,
+lot_number as store_lot_number, expiration_date as store_expiration_date, active as store_active, user as user
+from store where medication = type::thing('medication', $id) AND user = type::thing('user', $user) ORDER BY store_created);
+RETURN $results;};

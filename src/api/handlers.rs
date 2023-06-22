@@ -130,8 +130,11 @@ pub(crate) fn store_router(api_context: ApiContext) -> Router<ApiContext> {
     .route("/store", post(store::create_store))
     .route("/store/:id", get(store::read_store))
     .route("/store/:id", put(store::update_store))
+    .route("/store/:id", patch(store::deactivate_store))
     .route("/store/:id", delete(store::delete_store))
     .route("/store", get(store::list_stores))
+    .route("/stores/med", get(store::list_stores_for_medication))
+    .route("/stores/all", get(store::list_all_stores_for_medication))
     .layer(TraceLayer::new_for_http())
     .with_state(api_context)
 }
