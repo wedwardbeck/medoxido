@@ -53,8 +53,10 @@ pub(crate) fn medication_router(api_context: ApiContext) -> Router<ApiContext> {
     .route("/medication", post(medication::create_med))
     .route("/medication/:id", get(medication::read_med))
     .route("/medication/:id", put(medication::update_med))
+    .route("/medication/deactivate", patch(medication::deactivate_med))
     .route("/medication/:id", delete(medication::delete_med))
-    .route("/medications", get(medication::list_meds))
+    .route("/medications", get(medication::list_all_meds))
+    .route("/medications/status", get(medication::list_user_meds_by_status))
     .layer(TraceLayer::new_for_http())
     .with_state(api_context)
 }

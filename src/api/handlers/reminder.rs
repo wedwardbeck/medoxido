@@ -54,16 +54,6 @@ pub struct CreateReminder {
     times: Vec<String>,
 }
 
-// /// A struct representing a reminder for updating medication
-// ///
-// /// # Fields
-// ///
-// /// * `id` - The unique identifier for the reminder
-// /// * `medication` - The medication to be updated
-// /// * `start` - The date and time when the reminder starts
-// /// * `end` - The date and time when the reminder ends
-// /// * `days` - The days of the week when the reminder is active
-// /// * `times` - The times of day when the reminder is active
 // #[derive(Serialize, Deserialize)]
 // pub struct UpdateReminder {
 //     id: Thing,

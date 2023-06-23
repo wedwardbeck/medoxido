@@ -40,6 +40,13 @@ pub struct CreateMedication {
     active: Option<bool>,
 }
 
+#[derive(Serialize, Deserialize)]
+pub struct MedicationBool {
+    active: Option<bool>,
+    id: Option<String>,
+    user: String,
+}
+
 /// Creates a new medication record in the database
 ///
 /// # Arguments
@@ -107,6 +114,21 @@ pub(crate) async fn update_med(
     Ok(Json(medication))
 }
 
+pub(crate) async fn deactivate_med(
+    ctx: State<ApiContext>,
+    // id: Path<String>,
+    Json(medication): Json<MedicationBool>,
+) -> Result<Json<Option<Medication>>, Error> {
+    let mut sql = ctx.db.query(
+        "UPDATE type::thing('medication', $id) SET active = false WHERE user = type::thing('user', $user);")
+        .bind(("id", medication.id))
+        .bind(("user", medication.user))
+        .await?;
+    let medication: Option<Medication> = sql.take(0)?;
+    Ok(Json(medication))
+}
+
+
 /// Deletes a medication from the database
 ///
 /// # Arguments
@@ -131,7 +153,36 @@ pub(crate) async fn delete_med(ctx: State<ApiContext>, id: Path<String>) -> Resu
 /// # Returns
 ///
 /// A `Json` object containing a vector of `Medication` structs, or an `Error` if the database query fails.
-pub(crate) async fn list_meds(ctx: State<ApiContext>,) -> Result<Json<Vec<Medication>>, Error> {
-    let medications = ctx.db.select(MEDICATION).await?;
+pub(crate) async fn list_all_meds(
+    ctx: State<ApiContext>,
+    Json(medication_bool): Json<MedicationBool>,
+) -> Result<Json<Vec<Medication>>, Error> {
+    let mut sql = ctx.db.query(
+        "RETURN fn::list_user_medications($user);")
+        .bind(("user", medication_bool.user))
+        .await?;
+    let medications: Vec<Medication> = sql.take(0)?;
+    Ok(Json(medications))
+}
+
+/// Retrieves a list of all medications from the database and returns them as a JSON object
+///
+/// # Arguments
+///
+/// * `ctx` - A `State` object containing the `ApiContext` struct
+///
+/// # Returns
+///
+/// A `Json` object containing a vector of `Medication` structs, or an `Error` if the database query fails.
+pub(crate) async fn list_user_meds_by_status(
+    ctx: State<ApiContext>,
+    Json(medication_bool): Json<MedicationBool>,
+) -> Result<Json<Vec<Medication>>, Error> {
+    let mut sql = ctx.db.query(
+        "RETURN fn::list_user_medications_by_status($active, $user);")
+        .bind(("user", medication_bool.user))
+        .bind(("active", medication_bool.active))
+        .await?;
+    let medications: Vec<Medication> = sql.take(0)?;
     Ok(Json(medications))
 }
