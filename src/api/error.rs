@@ -22,15 +22,6 @@ pub enum Error {
     NotFound,
 
     /// Return `422 Unprocessable Entity`
-    ///
-    /// This also serializes the `errors` map to JSON to satisfy the requirement for
-    /// `422 Unprocessable Entity` errors in the Realworld spec:
-    /// https://realworld-docs.netlify.app/docs/specs/backend-specs/error-handling
-    ///
-    /// For a good API, the other status codes should also ideally map to some sort of JSON body
-    /// that the frontend can deal with, but I do admit sometimes I've just gotten lazy and
-    /// returned a plain error message if there were few enough error modes for a route
-    /// that the frontend could infer the error from the status code alone.
     #[error("error in the request body")]
     UnprocessableEntity {
         errors: HashMap<Cow<'static, str>, Vec<Cow<'static, str>>>,
@@ -99,12 +90,6 @@ impl IntoResponse for Error {
                     // Include the `WWW-Authenticate` challenge required in the specification
                     // for the `401 Unauthorized` response code:
                     // https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/401
-                    //
-                    // The Realworld spec does not specify this:
-                    // https://realworld-docs.netlify.app/docs/specs/backend-specs/error-handling
-                    //
-                    // However, at Launchbadge we try to adhere to web standards wherever possible,
-                    // if nothing else than to try to act as a vanguard of sanity on the web.
                     [(WWW_AUTHENTICATE, "Token")],
                     self.to_string(),
                 )

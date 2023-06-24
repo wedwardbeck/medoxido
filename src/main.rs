@@ -1,10 +1,19 @@
+#![warn(missing_docs)]
+// Copyright 2023 wedwardbeck
 
+//! # medóxido
+//! medóxido (med ohk-see-doh), a combination of medication and óxido (Rust in Spanish), is a stand-alone medication
+//! tracker with reminders, notes, medication interaction information, and analytical reports to show trends,
+//! correlations, and other helpful feedback.  It is intended to be installed locally on most common platforms
+//! and uses a local built-in database engine and local file.
+//!
 use clap::Parser;
 use surrealdb::engine::remote::ws::{ Ws };
 use surrealdb::opt::auth::Root;
 use surrealdb::Surreal;
 use medoxido::config::{Config};
 use medoxido::api;
+
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
