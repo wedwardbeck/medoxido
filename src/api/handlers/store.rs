@@ -111,7 +111,7 @@ pub(crate) async fn read_store(ctx: State<ApiContext>, id: Path<String>) -> Resu
 pub(crate) async fn update_store(
     ctx: State<ApiContext>,
     id: Path<String>,
-    Json(store): Json<Store>,
+    Json(store): Json<CreateStore>,
 ) -> Result<Json<Option<Store>>, Error> {
     let mut sql = ctx.db.query(
         "UPDATE type::thing('store', $id) SET  user = type::thing('user', $user), medication = type::thing('medication', $medication), production_date = $production_date,

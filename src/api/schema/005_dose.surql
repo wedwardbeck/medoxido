@@ -24,3 +24,5 @@ store.production_date as store_production_date, store.unit as store_unit, store.
 store.updated as store_updated, store.active as store_active, user as user
 from dose where store = type::thing('store', $id) ORDER BY created);
 RETURN $results;};
+
+//TODO: Add user to the queries

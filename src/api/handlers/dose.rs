@@ -178,7 +178,8 @@ Result<Json<Vec<DoseList>>, Error> {
 }
 
 //TODO: Add tests for dose handlers
-//TODO: add function to get all doses for a given medication
+
+//TODO: Add user to all queries where id not used (update, delete, read)
 //TODO: add function to get summary data on doses - stats for graphing, ot other reports
 //TODO: add function to get summary data on dose timings and other patterns
 

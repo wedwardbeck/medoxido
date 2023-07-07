@@ -1,6 +1,5 @@
 
-use axum::extract::Path;
-use axum::extract::State;
+use axum::extract::{ State, Path, Query };
 use axum::Json;
 use serde::Deserialize;
 use serde::Serialize;
@@ -22,17 +21,30 @@ const REMINDER: &str = "reminder";
 /// * `created`: The date and time when the reminder was created
 #[derive(Serialize, Deserialize)]
 pub struct Reminder {
-    id: Thing,
-    user: Option<String>,
-    medication: Thing,
-    start: Datetime,
-    end: Datetime,
-    days: String,
-    times: Vec<String>,
     active: bool,
     created: Datetime,
+    days: String,
+    end: Datetime,
+    id: Thing,
+    medication: Thing,
+    start: Datetime,
+    times: Vec<String>,
     updated: Datetime,
+    user: Option<Thing>,
 }
+
+#[derive(Serialize, Deserialize)]
+pub struct QueryUser {
+    active: Option<bool>,
+    created: Option<Datetime>,
+    days: Option<String>,
+    end: Option<Datetime>,
+    id: Option<String>,
+    medication: Option<String>,
+    start: Option<Datetime>,
+    user: Option<String>,
+}
+
 /// Creates a new note in the database with the provided content
 ///
 /// # Arguments
@@ -54,15 +66,6 @@ pub struct CreateReminder {
     times: Vec<String>,
 }
 
-// #[derive(Serialize, Deserialize)]
-// pub struct UpdateReminder {
-//     id: Thing,
-//     medication: Thing,
-//     start: Datetime,
-//     end: String,
-//     days: String,
-//     times: Vec<String>,
-// }
 /// Creates a new reminder in the database with the given parameters
 ///
 /// # Arguments
@@ -186,8 +189,15 @@ pub(crate) async fn delete_reminder(ctx: State<ApiContext>, id: Path<String>) ->
 /// # Errors
 ///
 /// * Returns an `Error` if there is an issue with the database query or connection.
-pub(crate) async fn list_reminders(ctx: State<ApiContext>,) -> Result<Json<Vec<Reminder>>, Error> {
-    let reminders = ctx.db.select(REMINDER).await?;
+pub(crate) async fn list_reminders(
+    ctx: State<ApiContext>,
+    query: Query<QueryUser>,
+) -> Result<Json<Vec<Reminder>>, Error> {
+    let mut sql = ctx.db.query(
+        "SELECT * from reminder where user = type::thing('user', $user);")
+        .bind(("user", &query.user))
+        .await?;
+    let reminders: Vec<Reminder> = sql.take(0)?;
     Ok(Json(reminders))
 }
 
@@ -204,9 +214,14 @@ pub(crate) async fn list_reminders(ctx: State<ApiContext>,) -> Result<Json<Vec<R
 /// # Errors
 ///
 /// Returns an `Error` if there is an issue with the database query or if the query returns no results.
-pub(crate) async fn list_active_reminders(ctx: State<ApiContext>,) -> Result<Json<Vec<Reminder>>, Error> {
+pub(crate) async fn list_active_reminders(
+    ctx: State<ApiContext>,
+    query: Query<QueryUser>,
+    ) -> Result<Json<Vec<Reminder>>, Error> {
     let mut sql = ctx.db.query(
-        "SELECT * from reminder where active == true;").await?;
+        "SELECT * from reminder where active == true and user = type::thing('user', $user);")
+        .bind(("user", &query.user))
+        .await?;
     let reminders: Vec<Reminder> = sql.take(0)?;
     Ok(Json(reminders))
 }

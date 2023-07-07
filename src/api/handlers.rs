@@ -20,10 +20,10 @@ use crate::api::ApiContext;
 /// The router is also layered with a TraceLayer for HTTP tracing and is initialized with the given ApiContext state.
 pub(crate) fn dose_router(api_context: ApiContext) -> Router<ApiContext> {
     Router::new()
-    .route("/dose", post(dose::create_dose))
-    .route("/dose/:id", get(dose::read_dose))
-    .route("/dose/:id", put(dose::update_dose))
-    .route("/dose/:id", delete(dose::delete_dose))
+    .route("/doses", post(dose::create_dose))
+    .route("/doses/:id", get(dose::read_dose))
+    .route("/doses/:id", put(dose::update_dose))
+    .route("/doses/:id", delete(dose::delete_dose))
     .route("/doses", get(dose::list_doses))
     .route("/doses/medication/:id", get(dose::list_doses_for_medication))
     .route("/doses/store/:id", get(dose::list_doses_for_store))
@@ -41,20 +41,20 @@ pub(crate) fn dose_router(api_context: ApiContext) -> Router<ApiContext> {
 ///
 /// A `Router` instance with the following routes:
 ///
-/// * POST `/medication` - Creates a new medication
-/// * GET `/medication/:id` - Retrieves a medication by ID
-/// * PUT `/medication/:id` - Updates a medication by ID
-/// * DELETE `/medication/:id` - Deletes a medication by ID
+/// * POST `/medications` - Creates a new medication
+/// * GET `/medications/:id` - Retrieves a medication by ID
+/// * PUT `/medications/:id` - Updates a medication by ID
+/// * DELETE `/medications/:id` - Deletes a medication by ID
 /// * GET `/medications` - Retrieves a list of all medications
 ///
 /// The router is also
 pub(crate) fn medication_router(api_context: ApiContext) -> Router<ApiContext> {
     Router::new()
-    .route("/medication", post(medication::create_med))
-    .route("/medication/:id", get(medication::read_med))
-    .route("/medication/:id", put(medication::update_med))
-    .route("/medication/deactivate", patch(medication::deactivate_med))
-    .route("/medication/:id", delete(medication::delete_med))
+    .route("/medications", post(medication::create_med))
+    .route("/medications/:id", get(medication::read_med))
+    .route("/medications/:id", put(medication::update_med))
+    .route("/medications/deactivate", patch(medication::deactivate_med))
+    .route("/medications/:id", delete(medication::delete_med))
     .route("/medications", get(medication::list_all_meds))
     .route("/medications/status", get(medication::list_user_meds_by_status))
     .layer(TraceLayer::new_for_http())
@@ -73,10 +73,10 @@ pub(crate) fn medication_router(api_context: ApiContext) -> Router<ApiContext> {
 /// The router is also layered with `TraceLayer` for logging HTTP requests and responses.
 pub(crate) fn note_router(api_context: ApiContext) -> Router<ApiContext> {
     Router::new()
-    .route("/note", post(note::create_note))
-    .route("/note/:id", get(note::read_note))
-    .route("/note/:id", put(note::update_note))
-    .route("/note/:id", delete(note::delete_note))
+    .route("/notes", post(note::create_note))
+    .route("/notes/:id", get(note::read_note))
+    .route("/notes/:id", put(note::update_note))
+    .route("/notes/:id", delete(note::delete_note))
     .route("/notes", get(note::list_notes))
     .route("/notes/dose", get(note::list_all_dose_notes))
     .route("/notes/dose/:id", get(note::list_notes_for_dose))
@@ -107,13 +107,13 @@ pub(crate) fn note_router(api_context: ApiContext) -> Router<ApiContext> {
 /// *
 pub(crate) fn reminder_router(api_context: ApiContext) -> Router<ApiContext> {
     Router::new()
-    .route("/reminder", post(reminder::create_reminder))
-    .route("/reminder/:id", get(reminder::read_reminder))
-    .route("/reminder/:id", put(reminder::update_reminder))
-    .route("/reminder/:id", patch(reminder::deactivate_reminder))
-    .route("/reminder/:id", delete(reminder::delete_reminder))
-    .route("/reminders", get(reminder::list_reminders))
-    .route("/activereminders", get(reminder::list_active_reminders))
+    .route("/reminders", post(reminder::create_reminder))
+    .route("/reminders/:id", get(reminder::read_reminder))
+    .route("/reminders/:id", put(reminder::update_reminder))
+    .route("/reminders/:id", patch(reminder::deactivate_reminder))
+    .route("/reminders/:id", delete(reminder::delete_reminder))
+    .route("/reminders/", get(reminder::list_reminders))
+    .route("/activereminders/", get(reminder::list_active_reminders))
     .layer(TraceLayer::new_for_http())
     .with_state(api_context)
 }
@@ -129,12 +129,12 @@ pub(crate) fn reminder_router(api_context: ApiContext) -> Router<ApiContext> {
 /// The router object with the store API endpoints and middleware added
 pub(crate) fn store_router(api_context: ApiContext) -> Router<ApiContext> {
     Router::new()
-    .route("/store", post(store::create_store))
-    .route("/store/:id", get(store::read_store))
-    .route("/store/:id", put(store::update_store))
-    .route("/store/:id", patch(store::deactivate_store))
-    .route("/store/:id", delete(store::delete_store))
-    .route("/store", get(store::list_stores))
+    .route("/stores", post(store::create_store))
+    .route("/stores/:id", get(store::read_store))
+    .route("/stores/:id", put(store::update_store))
+    .route("/stores/:id", patch(store::deactivate_store))
+    .route("/stores/:id", delete(store::delete_store))
+    .route("/stores", get(store::list_stores))
     .route("/stores/med", get(store::list_stores_for_medication))
     .route("/stores/all", get(store::list_all_stores_for_medication))
     .layer(TraceLayer::new_for_http())
@@ -150,10 +150,10 @@ pub(crate) fn store_router(api_context: ApiContext) -> Router<ApiContext> {
 /// The router is also layered with a TraceLayer for HTTP tracing and is initialized with the provided `api_context`.
 pub(crate) fn uom_router(api_context: ApiContext) -> Router<ApiContext> {
     Router::new()
-    .route("/uom", post(uom::create_uom))
-    .route("/uom/:id", get(uom::read_uom))
-    .route("/uom/:id", put(uom::update_uom))
-    .route("/uom/:id", delete(uom::delete_uom))
+    .route("/uoms", post(uom::create_uom))
+    .route("/uoms/:id", get(uom::read_uom))
+    .route("/uoms/:id", put(uom::update_uom))
+    .route("/uoms/:id", delete(uom::delete_uom))
     .route("/uoms", get(uom::list_uoms))
     .layer(TraceLayer::new_for_http())
     .with_state(api_context)

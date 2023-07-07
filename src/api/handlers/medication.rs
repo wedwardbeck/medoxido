@@ -1,6 +1,5 @@
 
-use axum::extract::Path;
-use axum::extract::State;
+use axum::extract::{ State, Path, Query };
 use axum::Json;
 use serde::Deserialize;
 use serde::Serialize;
@@ -155,11 +154,12 @@ pub(crate) async fn delete_med(ctx: State<ApiContext>, id: Path<String>) -> Resu
 /// A `Json` object containing a vector of `Medication` structs, or an `Error` if the database query fails.
 pub(crate) async fn list_all_meds(
     ctx: State<ApiContext>,
-    Json(medication_bool): Json<MedicationBool>,
+    // user: Path<String>,
+    query: Query<MedicationBool>,
 ) -> Result<Json<Vec<Medication>>, Error> {
     let mut sql = ctx.db.query(
         "RETURN fn::list_user_medications($user);")
-        .bind(("user", medication_bool.user))
+        .bind(("user", &*query.user))
         .await?;
     let medications: Vec<Medication> = sql.take(0)?;
     Ok(Json(medications))
@@ -176,12 +176,12 @@ pub(crate) async fn list_all_meds(
 /// A `Json` object containing a vector of `Medication` structs, or an `Error` if the database query fails.
 pub(crate) async fn list_user_meds_by_status(
     ctx: State<ApiContext>,
-    Json(medication_bool): Json<MedicationBool>,
+    query: Query<MedicationBool>,
 ) -> Result<Json<Vec<Medication>>, Error> {
     let mut sql = ctx.db.query(
         "RETURN fn::list_user_medications_by_status($active, $user);")
-        .bind(("user", medication_bool.user))
-        .bind(("active", medication_bool.active))
+        .bind(("user", &*query.user))
+        .bind(("active", query.active))
         .await?;
     let medications: Vec<Medication> = sql.take(0)?;
     Ok(Json(medications))
