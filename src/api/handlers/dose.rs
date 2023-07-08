@@ -1,6 +1,5 @@
 
-use axum::extract::Path;
-use axum::extract::State;
+use axum::extract::{ State, Path, Query };
 use axum::Json;
 use serde::Deserialize;
 use serde::Serialize;
@@ -47,6 +46,12 @@ pub struct CreateDose {
     store: String,
     quantity: f32,
     unit: String,
+}
+#[derive(Serialize, Deserialize)]
+pub struct DoseQuery {
+    id: Option<String>,
+    store: Option<String>,
+    user: String,
 }
 
 /// Creates a new dose with the given store, quantity, and unit and returns the created dose as a JSON object
@@ -133,9 +138,16 @@ pub(crate) async fn delete_dose(ctx: State<ApiContext>, id: Path<String>) -> Res
 /// # Returns
 ///
 /// A `Json` object containing a `Vec` of `Dose` structs, representing all doses in the database. If there is an error retrieving the doses from the database, an `Error` is returned.
-pub(crate) async fn list_doses(ctx: State<ApiContext>,) -> Result<Json<Vec<Dose>>, Error> {
-    let doses = ctx.db.select(DOSE).await?;
-    Ok(Json(doses))
+pub(crate) async fn list_doses_for_user(
+    ctx: State<ApiContext>,
+    query: Query<DoseQuery>,
+) -> Result<Json<Vec<DoseList>>, Error> {
+    let mut sql = ctx.db.query(
+        "RETURN fn::list_doses_for_user($user);")
+        .bind(("user", &query.user))
+        .await?;
+    let notes: Vec<DoseList> = sql.take(0)?;
+    Ok(Json(notes))
 }
 
 #[derive(Serialize, Deserialize)]
@@ -157,21 +169,27 @@ pub struct DoseList {
     user: Thing,
 }
 
-pub(crate) async fn list_doses_for_medication(ctx: State<ApiContext>, id: Path<String>) ->
-Result<Json<Vec<DoseList>>, Error> {
+pub(crate) async fn list_doses_for_medication(
+    ctx: State<ApiContext>,
+    query: Query<DoseQuery>,
+) -> Result<Json<Vec<DoseList>>, Error> {
     let mut sql = ctx.db.query(
-        "RETURN fn::list_doses_for_medication($id);")
-        .bind(("id", &*id))
+        "RETURN fn::list_doses_for_medication($id, $user);")
+        .bind(("id", &query.id))
+        .bind(("user", &query.user))
         .await?;
     let notes: Vec<DoseList> = sql.take(0)?;
     Ok(Json(notes))
 }
 
-pub(crate) async fn list_doses_for_store(ctx: State<ApiContext>, id: Path<String>) ->
-Result<Json<Vec<DoseList>>, Error> {
+pub(crate) async fn list_doses_for_store(
+    ctx: State<ApiContext>,
+    query: Query<DoseQuery>,
+) -> Result<Json<Vec<DoseList>>, Error> {
     let mut sql = ctx.db.query(
-        "RETURN fn::list_doses_for_store($id);")
-        .bind(("id", &*id))
+        "RETURN fn::list_doses_for_store($id, $user);")
+        .bind(("id", &query.id))
+        .bind(("user", &query.user))
         .await?;
     let notes: Vec<DoseList> = sql.take(0)?;
     Ok(Json(notes))
