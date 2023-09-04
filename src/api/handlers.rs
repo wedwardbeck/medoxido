@@ -8,6 +8,7 @@ pub(crate) mod reminder;
 pub(crate) mod note;
 pub(crate) mod store;
 pub(crate) mod uom;
+// pub(crate) mod user;
 
 use crate::api::ApiContext;
 
@@ -80,7 +81,7 @@ pub(crate) fn note_router(api_context: ApiContext) -> Router<ApiContext> {
     .route("/notes", get(note::list_notes))
     .route("/notes/dose", get(note::list_all_dose_notes))
     .route("/notes/dose/:id", get(note::list_notes_for_dose))
-    .route("/notes/med", get(note::list_all_medication_notes))
+    .route("/notes/meds", get(note::list_all_medication_notes))
     .route("/notes/med/:id", get(note::list_notes_for_medication))
     .route("/notes/store", get(note::list_all_store_notes))
     .route("/notes/store/:id", get(note::list_notes_for_store))
@@ -158,6 +159,15 @@ pub(crate) fn uom_router(api_context: ApiContext) -> Router<ApiContext> {
     .layer(TraceLayer::new_for_http())
     .with_state(api_context)
 }
+
+// pub(crate) fn user_router(api_context: ApiContext) -> Router<ApiContext> {
+//     Router::new()
+//     .route("/users", post(user::create_user))
+//     .route("/users/login", post(user::login_user))
+//     .route("/user", get(user::get_current_user).put(user::update_user))
+//     .layer(TraceLayer::new_for_http())
+//     .with_state(api_context)
+// }
 
 //TODO: Deal with any table index constraints in the client side ahead of time.
 //TODO: Revisit this approach of prechecks when we switch to embedded since it should have better error responses

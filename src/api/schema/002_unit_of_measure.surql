@@ -7,4 +7,4 @@ DEFINE FIELD created ON unit_of_measure VALUE $before OR time::now();
 DEFINE FIELD updated ON unit_of_measure VALUE time::now();
 
 //  Indexes
-DEFINE INDEX unit_of_measure_index ON medication FIELDS name, abbreviation UNIQUE;
+DEFINE INDEX unit_of_measure_index ON unit_of_measure FIELDS name, abbreviation UNIQUE;

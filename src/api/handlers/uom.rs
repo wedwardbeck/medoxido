@@ -49,8 +49,13 @@ pub(crate) async fn create_uom(
     ctx: State<ApiContext>,
     Json(unitofmeasure): Json<UnitOfMeasure>,
 ) -> Result<Json<Option<UnitOfMeasure>>, Error> {
-    let unitofmeasure = ctx.db.create(UNITOFMEASURE).content(unitofmeasure).await?;
-    Ok(Json(unitofmeasure))
+    let mut sql = ctx.db.query(
+        "CREATE unit_of_measure set name = $name, abbreviation = $abbreviation;")
+        .bind(("name", unitofmeasure.name))
+        .bind(("abbreviation", unitofmeasure.abbreviation))
+        .await?;
+    let uom: Option<UnitOfMeasure> = sql.take(0)?;
+    Ok(Json(uom))
 }
 
 /// Reads a unit of measure from the database given its ID

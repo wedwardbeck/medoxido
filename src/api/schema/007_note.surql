@@ -79,7 +79,7 @@ RETURN $results;
 };
 
 DEFINE FUNCTION fn::list_notes_for_medication(
-    $id: string
+    $id: string, $user: string
 ) {let $results = (select id, content, created, note_table, note_thing, updated,
 type::thing(note_table,note_thing) as medication_id,
 type::thing(note_table,note_thing).name as medication_name,
@@ -87,12 +87,11 @@ type::thing(note_table,note_thing).created as medication_created,
 type::thing(note_table,note_thing).updated as medication_updated,
 type::thing(note_table,note_thing).active as medication_active,
 type::thing(note_table,note_thing).user as user
-from note where note_table = "medication" and note_thing = $id ORDER BY created);
+from note where note_table = "medication" AND note_thing = $id AND user = type::thing('user', $user) ORDER BY created);
 RETURN $results;
 };
 
-DEFINE FUNCTION fn::list_all_medication_notes(
-
+DEFINE FUNCTION fn::list_all_medication_notes($user: string
 ) {let $results = (select id, content, created, note_table, note_thing, updated,
 type::thing(note_table,note_thing) as medication_id,
 type::thing(note_table,note_thing).name as medication_name,
@@ -100,7 +99,7 @@ type::thing(note_table,note_thing).created as dose_created,
 type::thing(note_table,note_thing).updated as dose_updated,
 type::thing(note_table,note_thing).active as medication_active,
 type::thing(note_table,note_thing).user as user
-from note where note_table = "medication" ORDER BY created);
+from note where note_table = "medication" AND user = type::thing('user', $user) ORDER BY created);
 RETURN $results;
 };
 

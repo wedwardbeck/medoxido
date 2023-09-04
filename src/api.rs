@@ -1,7 +1,7 @@
 use axum::Router;
 use anyhow::Context;
 use surrealdb::Surreal;
-use surrealdb::engine::remote::ws::{ Client };
+use surrealdb::engine::remote::ws::Client;
 use std::{
     net::{Ipv4Addr, SocketAddr},
     sync::Arc,
@@ -11,9 +11,10 @@ use tower_http::trace::TraceLayer;
 use crate::config::Config;
 pub mod handlers;
 pub mod error;
-pub use error::{Error};
+pub use error::Error;
+// pub mod extractor;
 
-// pub type Result<T, E = Error> = std::result::Result<T, E>;
+pub type Result<T, E = Error> = std::result::Result<T, E>;
 
 // TODO: Remove this when we implement auth and use config.
 #[allow(unused)]
@@ -62,6 +63,7 @@ fn api_router(api_context: ApiContext) -> Router {
         .merge(handlers::note_router(api_context.clone()))
         .merge(handlers::store_router(api_context.clone()))
         .merge(handlers::uom_router(api_context.clone()))
+        // .merge(handlers::user_router(api_context.clone()))
         // Enables logging. Use `RUST_LOG=tower_http=debug`
         .layer(TraceLayer::new_for_http())
         .with_state(api_context)

@@ -8,10 +8,10 @@
 //! and uses a local built-in database engine and local file.
 //!
 use clap::Parser;
-use surrealdb::engine::remote::ws::{ Ws };
+use surrealdb::engine::remote::ws::Ws;
 use surrealdb::opt::auth::Root;
 use surrealdb::Surreal;
-use medoxido::config::{Config};
+use medoxido::config::Config;
 use medoxido::api;
 
 

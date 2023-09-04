@@ -1,6 +1,5 @@
 
-use axum::extract::Path;
-use axum::extract::State;
+use axum::extract::{ State, Path, Query };
 use axum::Json;
 use serde::Deserialize;
 use serde::Serialize;
@@ -42,6 +41,14 @@ pub struct CreateNote {
     content: String,
     created: Option<Datetime>,
     updated: Option<Datetime>,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct NoteQuery {
+    id: Option<String>,
+    note_table: Option<String>,
+    note_thing: Option<String>,
+    user: String,
 }
 
 /// Creates a new note in the database with the provided content
@@ -228,20 +235,27 @@ Result<Json<Vec<DoseNote>>, Error> {
     Ok(Json(notes))
 }
 
-pub(crate) async fn list_all_medication_notes(ctx: State<ApiContext>,) -> Result<Json<Vec<MedicationNote>>, Error> {
+pub(crate) async fn list_all_medication_notes(
+    ctx: State<ApiContext>,
+    query: Query<NoteQuery>,
+) -> Result<Json<Vec<MedicationNote>>, Error> {
     let mut sql = ctx.db.query(
-        "RETURN fn::list_all_medication_notes();")
+        "RETURN fn::list_all_medication_notes($user);")
+        .bind(("id", &query.user))
         .await?;
     let notes: Vec<MedicationNote> = sql.take(0)?;
     dbg!(&notes);
     Ok(Json(notes))
 }
 
-pub(crate) async fn list_notes_for_medication(ctx: State<ApiContext>, id: Path<String>) ->
-Result<Json<Vec<MedicationNote>>, Error> {
+pub(crate) async fn list_notes_for_medication(
+    ctx: State<ApiContext>,
+    query: Query<NoteQuery>,
+) -> Result<Json<Vec<MedicationNote>>, Error> {
     let mut sql = ctx.db.query(
         "RETURN fn::list_notes_for_medication($id);")
-        .bind(("id", &*id))
+        .bind(("id", &query.id))
+        .bind(("id", &query.user))
         .await?;
     let notes: Vec<MedicationNote> = sql.take(0)?;
     Ok(Json(notes))
